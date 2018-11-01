@@ -4,7 +4,7 @@ author: Stephen McPolin & Venil Noronha
 translator: shaobai
 reviewer: 
 title: "服务网格的未来"
-description: "分析 Service Mesh 现状，以及对 Service Mesh 发展展望"
+description: "分析 Service Mesh 现状，以及对 Service Mesh 发展展望"
 categories: "译文"
 tags: ["Istio","Service Mesh"]
 date: 018-10-16，2018-10-24
@@ -14,7 +14,7 @@ date: 018-10-16，2018-10-24
 
 请查看译文：
 1. [GitHub 译文地址](https://github.com/servicemesher/trans/blob/master/201810/the-future-of-service-mesh-part-ones-ervice-mesh-architectures-inevitable.md)
-2. 微信公众号 [**ServiceMesher**](https://mp.weixin.qq.com/s/sZlGF10Hppd2zRsbJVz8sw)
+2. 微信公众号 [**ServiceMesher**](https://mp.weixin.qq.com/s/sZlGF10Hppd2zRsbJVz8sw)
 
 ## 第二部分：在 Istio 1.0 发布后会发生什么？
 
@@ -30,10 +30,10 @@ date: 018-10-16，2018-10-24
 
 从我们的角度来看，这样的工作是为了扩大微服务生态系统。然而，服务网格平台本身还不够完善。比如说，Istio 是一个复杂的软件，当它不能正常工作时很难调试。当它在工作，它能很好的帮助你监测你的微服务是否正常运行。当它不能正常工作，又很难弄清楚它为什么不能工作。这种复杂度已被社区中被广泛理解的，并且我们一直在花时间和精力思考如何克服这种复杂性，但目前我们还没有解决这个问题。
 
-目前服务网格平台刚开始处理多集群情况。如果你将应用部署在单集群上，可以使用 Istio 和 Envoy 这样的应用管理他们。但是当你希望将单集群扩展到多集群，并让服务在集群边界上进行通信（从安全的角度来看是一个好想法），那这将是一个挑战。社区理解 Istio 这样的情况，于我们而言，正在逐步改进设计以支持多集群管理。
+目前服务网格平台刚开始处理多集群情况。如果你将应用部署在单集群上，可以使用 Istio 和 Envoy 这样的应用管理他们。但是当你希望将单集群扩展到多集群，并让服务在集群边界上进行通信（从安全的角度来看是一个好想法），那这将是一个挑战。社区理解 Istio 这样的情况，于我们而言，正在逐步改进设计以支持多集群管理。
 
-至此，我们正在关注一个新的提议，来自 Google 的 Knative。从根本上说，这是基于 Google 的“函数即服务”概念，从 Kubernetes 和 Istio 中衍生出来的。在不久的将来，它将向 Istio 提出更多的需求，但是目前还不清楚这些需求从何而来。例如，“事件”对于 Istio 来说是一个完全陌生的概念，但是对于处理临时数据还是必要的。Knative 则增加了这方面的组件，并推向 Istio 的下层。
+至此，我们正在关注一个新的提议，来自 Google 的 Knative。从根本上说，这是基于 Google 的“函数即服务”概念，从 Kubernetes 和 Istio 中衍生出来的。在不久的将来，它将向 Istio 提出更多的需求，但是目前还不清楚这些需求从何而来。例如，“事件”对于 Istio 来说是一个完全陌生的概念，但是对于处理临时数据还是必要的。Knative 则增加了这方面的组件，并推向 Istio 的下层。
 
 现在，我们只是在看到 Space—Knative 推出了大约一个半月，并且还有很多问题没有解决，在我们决定如何应对之前寻求新的变革。因此，现在还有很多的事情要做，同时也有很多需要关注的地方。但是可以肯定的是，服务网格会有持续发展。
 
-请继续在Open Source Blog关注我们的服务网格系列的第二部分 ，并在Twitter上关注我们（@vmwopensource）。
+请继续在 [Open Source Blog](https://blogs.vmware.com/opensource/) 关注我们对服务网格系列后续的更新，并在Twitter上关注我们（@vmwopensource）。
