@@ -1,7 +1,7 @@
 ---
 original: https://www.nginx.com/blog/what-is-a-service-mesh/
 author: "Floyd Smith of NGINX, Inc. and Owen Garrett of NGINX, Inc"
-translator: "chengwhynot"
+translator: "garboy"
 reviewer: ["", ""]
 title: "什么是服务网格"
 description: "本文对服务网格做了一个入门介绍，是一个很好的入门参考"
