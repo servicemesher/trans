@@ -2,7 +2,7 @@
 original: http://wei-meilin.blogspot.com/2019/03/my2cents-eight-things-leads-to.html
 author: "CHRISTINA の J老闆"
 translator: "malphi"
-reviewer: ["rootsongjc", "haiker2011"]
+reviewer: ["rootsongjc"]
 title: "导致云原生微服务系统开发灾难性的8件事"
 description: "本文介绍了作者认为在开发云原生微服务系统时会出现的8个问题，并告诫大家避免犯错。"
 categories: "translation"
@@ -11,52 +11,91 @@ originalPublishDate: 2019-03-19
 publishDate: 2019-04-22
 ---
 
+# Istio和Linkerd CPU基准测试
+
 [编者按]
 
 > 本文对Istio进行了性能测试。
 
-### Background
+### 背景
 
-Here at [Shopify](https://www.shopify.ca/), we’re working on deploying [Istio](https://istio.io/) as our service mesh. We’re doing quite well, but are hitting a wall: **Cost**.
+在[Shopify](https://www.shopify.ca/)，我们正在部署Istio作为我们的服务网格。我们做的很不错但遇到了瓶颈：成本。
 
-Istio’s [published benchmarks](https://istio.io/docs/concepts/performance-and-scalability/#cpu-and-memory) state:
+Istio官方发布的基准测试情况如下：
 
-> As of Istio 1.1, a proxy consumes about 0.6 vCPU per 1000 requests per second.
+> 在Istio 1.1中一个代理每秒处理1000个请求大约会消耗0.6个vCPU。
 
-For our first edge in the service mesh (2 proxies on either side of the connection) we’re looking at 1,200 cores for the proxy alone, per million requests per second. Google’s pricing calculator estimates around $40/month/core for `n1-standard-64` nodes, which puts this single edge at over $50k/month/1MM RPS.
+对于服务网格中的第一个边界（连接的两端各有两个代理），1200个内核的代理每秒处理100万个请求。Google的价格计算器估算对于`n1-standard-64`机型每月每个核需要40美金，这使得这条单边的花费超过了5万美元/每月/每100万请求。
 
-[Ivan Sim](https://medium.com/@ihcsim) did a [great writeup](https://medium.com/@ihcsim/linkerd-2-0-and-istio-performance-benchmark-df290101c2bb) of service mesh latency last year and promised a followup with memory and CPU data, but couldn’t generate them:
+[Ivan Sim](https://medium.com/@ihcsim) 去年写了一个关于服务网格延迟的[很棒的文章](https://medium.com/@ihcsim/linkerd-2-0-and-istio-performance-benchmark-df290101c2bb) 并保证会持续更新CPU和内存部分，但目前还没有完成：
 
-> Looks like the values-istio-test.yaml is going to raise the CPU requests by quite a bit. If I’ve done my math correctly, it’s around 24 CPUs for the control plane and 0.5 CPU for each proxy. That’s more than my current personal account quota. I will re-run the tests once my request to increase my CPU quotas is approved.
+> 看起来values-istio-test.yaml将把CPU请求提升很多。如果我算的没错，控制平面大约有24个CPU，每个代理有0.5个CPU。这比我目前的个人账户配额还多。一旦我增加CPU配额的请求被批准，我将重新运行测试。
 
-I needed to see for myself if Istio was comparable to another open-source service mesh: [Linkerd](https://linkerd.io/).
+我需要亲眼看看Istio是否可以与另一个开源服务网格相媲美：[Linkerd](https://linkerd.io/).
 
-### Installing the Service Meshes
+### 安装服务网格
 
-First thing, I installed [SuperGloo](https://supergloo.solo.io/) in the cluster:
+首先，我在集群中安装了[SuperGloo](https://supergloo.solo.io/)： 
 
-
-
-<iframe width="700" height="250" data-src="/media/fd62a4b4a1a3c3b45752616d7185bfdc?postId=c36287e32781" data-media-id="fd62a4b4a1a3c3b45752616d7185bfdc" data-thumbnail="https://i.embed.ly/1/image?url=https%3A%2F%2Favatars2.githubusercontent.com%2Fu%2F24932723%3Fs%3D400%26v%3D4&amp;key=a19fcc184b9711e1b4764040d3dc5c07" class="progressiveMedia-iframe js-progressiveMedia-iframe" allowfullscreen="" frameborder="0" src="https://medium.com/media/fd62a4b4a1a3c3b45752616d7185bfdc?postId=c36287e32781" style="display: block; position: absolute; margin: auto; max-width: 100%; box-sizing: border-box; transform: translateZ(0px); top: 0px; left: 0px; width: 700px; height: 361.997px;"></iframe>
+```bash
+$ supergloo init
+installing supergloo version 0.3.12
+using chart uri https://storage.googleapis.com/supergloo-helm/charts/supergloo-0.3.12.tgz
+configmap/sidecar-injection-resources created
+serviceaccount/supergloo created
+serviceaccount/discovery created
+serviceaccount/mesh-discovery created
+clusterrole.rbac.authorization.k8s.io/discovery created
+clusterrole.rbac.authorization.k8s.io/mesh-discovery created
+clusterrolebinding.rbac.authorization.k8s.io/supergloo-role-binding created
+clusterrolebinding.rbac.authorization.k8s.io/discovery-role-binding created
+clusterrolebinding.rbac.authorization.k8s.io/mesh-discovery-role-binding created
+deployment.extensions/supergloo created
+deployment.extensions/discovery created
+deployment.extensions/mesh-discovery created
+install successful!
+```
 
 I used SuperGloo because it was super simple to get both services meshes bootstrapped quickly, with almost no effort on my part. We’re not using SuperGloo in production, but it was perfect for a task like this. It was literally two commands per mesh. I used two clusters for isolation— one for Istio, and one for Linkerd.
 
-I then installed both service meshes using the command line tool.
-First Lindkerd:
+我使用SuperGloo是因为它非常简单，可以快速引导两个服务网格，而我几乎不需要做任何努力。我们并没有在生产中使用SuperGloo，但是它非常适合这样的任务。每个网格实际上有两个命令。我使用了两个集群进行隔离——一个用于Istio，另一个用于Linkerd。
 
+然后我用下面的命令安装了两个服务网格。
+首先是Linkerd：
 
+```bash
+$ supergloo install linkerd --name linkerd
++---------+--------------+---------+---------------------------+
+| INSTALL |     TYPE     | STATUS  |          DETAILS          |
++---------+--------------+---------+---------------------------+
+| linkerd | Linkerd Mesh | Pending | enabled: true             |
+|         |              |         | version: stable-2.3.0     |
+|         |              |         | namespace: linkerd        |
+|         |              |         | mtls enabled: true        |
+|         |              |         | auto inject enabled: true |
++---------+--------------+---------+---------------------------+
+```
 
-<iframe width="700" height="250" data-src="/media/6a69429048a8a57a676e61f7aca02830?postId=c36287e32781" data-media-id="6a69429048a8a57a676e61f7aca02830" data-thumbnail="https://i.embed.ly/1/image?url=https%3A%2F%2Favatars2.githubusercontent.com%2Fu%2F24932723%3Fs%3D400%26v%3D4&amp;key=a19fcc184b9711e1b4764040d3dc5c07" class="progressiveMedia-iframe js-progressiveMedia-iframe" allowfullscreen="" frameborder="0" src="https://medium.com/media/6a69429048a8a57a676e61f7aca02830?postId=c36287e32781" style="display: block; position: absolute; margin: auto; max-width: 100%; box-sizing: border-box; transform: translateZ(0px); top: 0px; left: 0px; width: 700px; height: 241.997px;"></iframe>
+然后是Istio：
 
-Then Istio:
+```bash
+$ supergloo install istio --name istio --installation-namespace istio-system --mtls=true --auto-inject=true
++---------+------------+---------+---------------------------+
+| INSTALL |    TYPE    | STATUS  |          DETAILS          |
++---------+------------+---------+---------------------------+
+| istio   | Istio Mesh | Pending | enabled: true             |
+|         |            |         | version: 1.0.6            |
+|         |            |         | namespace: istio-system   |
+|         |            |         | mtls enabled: true        |
+|         |            |         | auto inject enabled: true |
+|         |            |         | grafana enabled: true     |
+|         |            |         | prometheus enabled: true  |
+|         |            |         | jaeger enabled: true      |
+```
 
+几分钟后的循环Crash后，控制平面稳定了下来。
 
-
-<iframe width="700" height="250" data-src="/media/44fdd954d74f8fe1c7f345b6dad51dd9?postId=c36287e32781" data-media-id="44fdd954d74f8fe1c7f345b6dad51dd9" data-thumbnail="https://i.embed.ly/1/image?url=https%3A%2F%2Favatars2.githubusercontent.com%2Fu%2F24932723%3Fs%3D400%26v%3D4&amp;key=a19fcc184b9711e1b4764040d3dc5c07" class="progressiveMedia-iframe js-progressiveMedia-iframe" allowfullscreen="" frameborder="0" src="https://medium.com/media/44fdd954d74f8fe1c7f345b6dad51dd9?postId=c36287e32781" style="display: block; position: absolute; margin: auto; max-width: 100%; box-sizing: border-box; transform: translateZ(0px); top: 0px; left: 0px; width: 700px; height: 301.997px;"></iframe>
-
-After a few minutes of CrashLooping, the control planes stabilized.
-
-### Set up Istio Auto Injection
+### 安装Istio自动注入
 
 To get Istio to install the Envoy sidecar, we use the sidecar injector, which is a `MutatingAdmissionWebhook`. It’s out of the scope of this article, but in a nutshell, a controller watches all new pod admissions and dynamically adds the sidecar and the initContainer which does the `iptables` magic.
 
@@ -66,7 +105,7 @@ At Shopify, we wrote our own admission controller to do sidecar injection, but f
 
 <iframe width="700" height="250" data-src="/media/be4da67ebe3fa4b58f0c4070d687f6d8?postId=c36287e32781" data-media-id="be4da67ebe3fa4b58f0c4070d687f6d8" data-thumbnail="https://i.embed.ly/1/image?url=https%3A%2F%2Favatars2.githubusercontent.com%2Fu%2F24932723%3Fs%3D400%26v%3D4&amp;key=a19fcc184b9711e1b4764040d3dc5c07" class="progressiveMedia-iframe js-progressiveMedia-iframe" allowfullscreen="" frameborder="0" src="https://medium.com/media/be4da67ebe3fa4b58f0c4070d687f6d8?postId=c36287e32781" style="display: block; position: absolute; margin: auto; max-width: 100%; box-sizing: border-box; transform: translateZ(0px); top: 0px; left: 0px; width: 700px; height: 141.997px;"></iframe>
 
-### Set up Linkerd Auto Injection
+### 安装Linkerd自动注入
 
 To set up Linkerd sidecar injection, we use annotations (which I added manually with `kubectl edit`):
 
@@ -82,7 +121,7 @@ metadata:
 
 ------
 
-### The Istio Resiliency Simulator (IRS)
+### Istio弹性模拟器(IRS)
 
 We developed the Istio Resiliency Simulator to try out some traffic scenarios that are unique to Shopify. Specifically, we wanted something that we could use to create an arbitrary topology to represent a specific portion of our service graph that was dynamically configurable to simulate specific workloads.
 
@@ -102,7 +141,7 @@ At the end of the workflow, we can examine logs & metrics to determine a pass/fa
 
 (*Note: We’re thinking of open-sourcing IRS, but are not ready to do so right now.*)
 
-### IRS for Service Mesh Benchmarking
+### IRS为服务网格基准测试
 
 For this purpose, we set up some IRS workers as follows:
 
@@ -116,9 +155,9 @@ We monitor the resource usage via [DataDog](https://www.datadoghq.com/), since w
 
 ------
 
-### The Results
+### 结果
 
-#### Control Planes
+#### 控制平面
 
 First, we looked at the control plane CPU usage.
 
@@ -136,7 +175,7 @@ Istio control plane: ~750 mcores
 
 The Istio control plane uses **~35x more CPU** than Linkerd’s. Admittedly this is an out-of-the-box installation, and the bulk of the Istio CPU usage is from the `istio-telemetry` deployment, which can be turned off (at the cost of features). Removing the mixer still leaves over 100 mcores, which is still **4x more CPU** than Linkerd.
 
-#### Sidecar Proxies
+#### Sidecar代理
 
 Next, we looked at the sidecar proxy usage. This should scale linearly with your request rate, but there is some overhead for each sidecar which will affect the shape of the curve.
 
@@ -174,7 +213,7 @@ Istio/Envoy: ~80 mcores for irs-server
 
 On the server side, the Istio/Envoy sidecar uses **~60% more CPU** than Linkerd.
 
-### Conclusion
+### 结论
 
 Istio’s Envoy proxy uses more than 50% more CPU than Linkerd’s, for this synthetic workload. Linkerd’s control plane uses a tiny fraction of Istio’s, especially when considering the “core” components.
 
