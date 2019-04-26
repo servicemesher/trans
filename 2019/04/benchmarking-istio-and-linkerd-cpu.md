@@ -97,17 +97,25 @@ $ supergloo install istio --name istio --installation-namespace istio-system --m
 
 ### 安装Istio自动注入
 
-To get Istio to install the Envoy sidecar, we use the sidecar injector, which is a `MutatingAdmissionWebhook`. It’s out of the scope of this article, but in a nutshell, a controller watches all new pod admissions and dynamically adds the sidecar and the initContainer which does the `iptables` magic.
+为了让Istio启用Envoy sidecar，我们使用一个`MutatingAdmissionWebhook`作为注入器。这超出了本文的讨论范围，但简言之，控制器监视所有新的Pod许可，并动态添加sidecar和initContainer，后者具有`iptables`的能力。
 
-At Shopify, we wrote our own admission controller to do sidecar injection, but for the purposes of this benchmark, I used the one that ships with Istio. The default one does injection when the label `istio-injection: enabled` is present on the namespace:
+在Shopify，我们自己写了许可控制器来做sidecar注入，但根据基准测试的目的，我使用了Istio自带的。
+
+At Shopify, we wrote our own admission controller to do sidecar injection, but for the purposes of this benchmark, I used the one that ships with Istio. 默认情况下命名空间上有`istio-injection: enabled`的标签就可以自动注入：
+
+```bash
+$ kubectl label namespace irs-client-dev istio-injection=enabled
+namespace/irs-client-dev labeled
+
+$ kubectl label namespace irs-server-dev istio-injection=enabled
+namespace/irs-server-dev labeled
+```
 
 
-
-<iframe width="700" height="250" data-src="/media/be4da67ebe3fa4b58f0c4070d687f6d8?postId=c36287e32781" data-media-id="be4da67ebe3fa4b58f0c4070d687f6d8" data-thumbnail="https://i.embed.ly/1/image?url=https%3A%2F%2Favatars2.githubusercontent.com%2Fu%2F24932723%3Fs%3D400%26v%3D4&amp;key=a19fcc184b9711e1b4764040d3dc5c07" class="progressiveMedia-iframe js-progressiveMedia-iframe" allowfullscreen="" frameborder="0" src="https://medium.com/media/be4da67ebe3fa4b58f0c4070d687f6d8?postId=c36287e32781" style="display: block; position: absolute; margin: auto; max-width: 100%; box-sizing: border-box; transform: translateZ(0px); top: 0px; left: 0px; width: 700px; height: 141.997px;"></iframe>
 
 ### 安装Linkerd自动注入
 
-To set up Linkerd sidecar injection, we use annotations (which I added manually with `kubectl edit`):
+要安装Linkerd的sidecar注入，我们使用标注（我通过`kubectl edit`手动添加）：
 
 ```
 metadata:
@@ -115,11 +123,25 @@ metadata:
     linkerd.io/inject: enabled
 ```
 
+```bash
+$ k edit ns irs-server-dev 
+namespace/irs-server-dev edited
+
+$ k get ns irs-server-dev -o yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  annotations:
+    linkerd.io/inject: enabled
+  name: irs-server-dev
+spec:
+  finalizers:
+  - kubernetes
+status:
+  phase: Active
+```
 
 
-<iframe width="700" height="250" data-src="/media/8b7ead5f6bd615b48a2786fb1c06ca20?postId=c36287e32781" data-media-id="8b7ead5f6bd615b48a2786fb1c06ca20" data-thumbnail="https://i.embed.ly/1/image?url=https%3A%2F%2Favatars2.githubusercontent.com%2Fu%2F24932723%3Fs%3D400%26v%3D4&amp;key=a19fcc184b9711e1b4764040d3dc5c07" class="progressiveMedia-iframe js-progressiveMedia-iframe" allowfullscreen="" frameborder="0" src="https://medium.com/media/8b7ead5f6bd615b48a2786fb1c06ca20?postId=c36287e32781" style="display: block; position: absolute; margin: auto; max-width: 100%; box-sizing: border-box; transform: translateZ(0px); top: 0px; left: 0px; width: 700px; height: 341.997px;"></iframe>
-
-------
 
 ### Istio弹性模拟器(IRS)
 
