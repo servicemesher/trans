@@ -39,7 +39,7 @@ Istio并不是唯一的选择，还有一些其它的服务网格实现正在开
 
 服务网格中管理实例间网络流量的部分被称作*数据平面*。控制数据平面的那些配置信息，是由另一个*控制平面*来产生并部署的。控制平面通常包括，或者说被设计用于连接至API，命令行，并且提供一个图形化界面用于管理。
 
-![img](.\service-mesh-generic-topology.png)
+![img](./service-mesh-generic-topology.png)
 
 控制平面用于数据平面中sidecar的配置项的分发
 
