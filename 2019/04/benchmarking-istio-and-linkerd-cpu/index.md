@@ -113,7 +113,7 @@ namespace/irs-server-dev labeled
 
 要安装Linkerd的sidecar注入，我们使用标注（我通过`kubectl edit`手动添加）：
 
-```
+```yaml
 metadata:
   annotations:
     linkerd.io/inject: enabled
