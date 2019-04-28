@@ -8,7 +8,7 @@ description: "本文对服务网格做了一个入门介绍，是一个很好的
 categories: "translation"
 tags: ["servicemesh"]
 originalPublishDate: 2018-04-03
-publishDate: 
+publishDate: 2019-4-28
 
 
 ---
