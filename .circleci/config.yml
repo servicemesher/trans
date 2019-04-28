@@ -1,11 +1,22 @@
-version: 2.0
+version: 2
 jobs:
- build:
-   docker:
-     - image: alpine:3.7
-   steps:
-     - run:
-         name: The First Step
-         command: |
-           echo 'Hello World!'
-           echo 'This is the delivery pipeline'
+  build:
+    docker:
+      - image: gcr.io/istio-testing/website-builder:2019-03-31
+
+    working_directory: ~/site
+
+    steps:
+      - checkout
+
+      # - run:
+      #     name: Building Site
+      #     command: scripts/build_site.sh
+
+      # - run:
+      #     name: Generating Site
+      #     command: scripts/gen_site.sh "" -no_minify -no_aliases
+
+      - run:
+          name: Running Linters
+          command: scripts/lint_site.sh
