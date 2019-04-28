@@ -109,7 +109,9 @@ publishDate: 2019-02-28
 
 如果您习惯使用VS Code的话可以选择在其中安装Markdown插件。
 
+## 词汇表
+
+[词汇表](./glossary.md)还在不断完善中
+
 ![ServiceMesher](https://ws1.sinaimg.cn/large/006tKfTcly1g0cz6429t2j31jt0beq9s.jpg)
 
-## 词汇表
-[词汇表](./glossary.md)还在不断完善中
