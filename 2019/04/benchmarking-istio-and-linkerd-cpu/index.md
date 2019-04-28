@@ -8,7 +8,7 @@ description: "本文对Istio和Linkerd的CPU使用情况做了基准测试和比
 categories: "translation"
 tags: ["istio","linkerd"]
 originalPublishDate: 2019-04-23
-publishDate: 2019-04-26
+publishDate: 2019-04-28
 ---
 
 # Istio和Linkerd的CPU基准测试
