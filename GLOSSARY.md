@@ -9,7 +9,7 @@ adapters|适配器
 authentication|认证
 authorization|鉴权
 before you begin|开始之前
-benchmark|
+benchmark|性能基准
 blacklist|黑名单
 canary|金丝雀部署
 certificates|证书
@@ -20,12 +20,12 @@ container orchestration framework|容器编排框架
 contribute|贡献
 control|控制
 debug|调试
-egress|
+egress|出站
 fault-injection|故障注入
 further reading|进阶阅读
 health-check|健康检查
 https|
-ingress|
+ingress|入站
 logging|日志
 metrics|指标
 migration|迁移
@@ -41,7 +41,7 @@ routing|路由
 scalability|可伸缩性
 scale|伸缩
 security|安全
-sidecar|
+sidecar|边车
 status|状态
 tcp|
 telemetry|遥测
