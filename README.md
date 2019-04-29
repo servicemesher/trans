@@ -110,6 +110,6 @@ publishDate: 2019-02-28
 
 ## 术语表
 
-术语表在[这里](./GLOSSARY.md)。
+术语表在[这里](https://github.com/servicemesher/glossary)。
 
 ![ServiceMesher](https://ws1.sinaimg.cn/large/006tKfTcly1g0cz6429t2j31jt0beq9s.jpg)
