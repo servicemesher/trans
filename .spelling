@@ -1,0 +1,7 @@
+# markdown-spellcheck spelling configuration file
+# Format - lines beginning # are comments
+# global dictionary is at the start, file overrides afterwards
+# one word per line, to define a file override use ' - filename'
+# followed by file specific exceptions, one per line
+# filename is relative to this configuration file
+ServiceMesher

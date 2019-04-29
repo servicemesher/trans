@@ -1,0 +1,14 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: gcr.io/istio-testing/website-builder:2019-03-31
+
+    working_directory: ~/site
+
+    steps:
+      - checkout
+
+      - run:
+          name: Running Linters
+          command: scripts/lint_site.sh
