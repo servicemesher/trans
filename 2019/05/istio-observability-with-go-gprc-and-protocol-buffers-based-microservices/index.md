@@ -17,33 +17,33 @@ publishDate: 2019-05-06
 
 > todo
 
-In the last two posts, [Kubernetes-based Microservice Observability with Istio Service Mesh](https://programmaticponderings.com/2019/03/10/kubernetes-based-microservice-observability-with-istio-service-mesh-part-1/) and [Azure Kubernetes Service (AKS) Observability with Istio Service Mesh](https://programmaticponderings.com/2019/03/31/azure-kubernetes-service-aks-observability-with-istio/), we explored the observability tools which are included with Istio Service Mesh. These tools currently include [Prometheus](https://prometheus.io/) and [Grafana](https://grafana.com/) for metric collection, monitoring, and alerting, [Jaeger](https://www.jaegertracing.io/) for distributed tracing, and [Kiali](https://www.kiali.io/) for Istio service-mesh-based microservice visualization and monitoring. Combined with cloud platform-native monitoring and logging services, such as [Stackdriver](https://cloud.google.com/monitoring/) on GCP, [CloudWatch](https://aws.amazon.com/cloudwatch/) on AWS, [Azure Monitor](https://docs.microsoft.com/en-us/azure/azure-monitor/overview) logs on Azure, and we have a complete observability solution for modern, distributed, Cloud-based applications.
+在过去的两篇文章中（[具有Istio服务网格的基于Kubernetes的微服务可视化](https://programmaticponderings.com/2019/03/10/kubernetes-based-microservice-observability-with-istio-service-mesh-part-1/) 和 [具有Istio服务网格的AKS可视化](https://programmaticponderings.com/2019/03/31/azure-kubernetes-service-aks-observability-with-istio/)），我们探索了包含在Istio服务网格中的可视化工具。目前这些工具包括用于指标收集、监控和报警的[Prometheus](https://prometheus.io/) 和 [Grafana](https://grafana.com/)，用做分布式追踪的[Jaeger](https://www.jaegertracing.io/)，以及基于Istio服务网格的微服务可视化和监控工具[Kiali](https://www.kiali.io/)。和云平台原生的监控、日志服务相比（例如GCP的 [Stackdriver](https://cloud.google.com/monitoring/)，AWS上的 [CloudWatch](https://aws.amazon.com/cloudwatch/)，Azure上的 [Azure Monitor](https://docs.microsoft.com/en-us/azure/azure-monitor/overview)），我们有针对现代化的、分布式的云应用的全面的可视化解决方案。
 
-In this post, we will examine the use of Istio’s observability tools to monitor Go-based microservices that use [Protocol Buffers](https://developers.google.com/protocol-buffers/) (aka *Protobuf*) over [gRPC](https://grpc.io/) (gRPC Remote Procedure Calls) and [HTTP/2](https://en.wikipedia.org/wiki/HTTP/2) for client-server communications, as opposed to the more traditional, REST-based JSON (JavaScript Object Notation) over HTTP (Hypertext Transfer Protocol). We will see how Kubernetes, Istio, Envoy, and the observability tools work seamlessly with gRPC, just as they do with JSON over HTTP, on [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/) (GKE).
+在这篇文章中，我们将考察使用Istio可视化工具来监控基于Go语言的微服务，它们使用 [Protocol Buffers](https://developers.google.com/protocol-buffers/)以及[gRPC](https://grpc.io/)和[HTTP/2](https://en.wikipedia.org/wiki/HTTP/2)作为客户端-服务端通信，这与传统的基于REST JSON和HTTP进行通信相反。我们将看到Kubernetes、Istio、Envoy和可视化工具如何与gRPC无缝地工作，就像在[Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/)上通过HTTP处理JSON一样。
 
-[![screen_shot_2019-04-18_at_6_03_38_pm](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-18_at_6_03_38_pm.png?w=620)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-18_at_6_03_38_pm.png)
+![1](1.png)
 
-# Technologies
+## 技术
 
-## ![Image result for grpc logo](https://programmaticponderings.files.wordpress.com/2019/04/1362d-1mlyq4q5rdi7k8qgrn5jeaa.png?w=217&h=77)gRPC
+### ![Image result for grpc logo](2.png)gRPC
 
-According to the [gRPC project](https://grpc.io/), gRPC, a [CNCF](https://www.cncf.io/) incubating project, is a modern, high-performance, open-source and universal [remote procedure call](https://en.wikipedia.org/wiki/Remote_procedure_call) (RPC) framework that can run anywhere. It enables client and server applications to communicate transparently and makes it easier to build connected systems. Google, the original developer of gRPC, has used the underlying technologies and concepts in gRPC for years. The current implementation is used in several Google cloud products and Google externally facing APIs. It is also being used by Square, Netflix, CoreOS, Docker, CockroachDB, Cisco, Juniper Networks and many other organizations.
+根据[gRPC项目](https://grpc.io/)看， gRPC是[CNCF](https://www.cncf.io/)的孵化项目，一个现代化的、高性能、开源和通用的[RPC](https://en.wikipedia.org/wiki/remote_procedure re_call)框架，可以在任何地方运行。它使客户端和服务端应用能够透明地通信，并更加容易的构建连接系统。Google是gRPC最初的开发者，多年来一直使用gRPC中的底层技术和概念。当前的实现用于几个谷歌的云产品和对外的API。许多其他组织也在使用它，比如Square、Netflix、CoreOS、Docker、CockroachDB、Cisco、Juniper Networks等。
 
-## ![Image result for google developer](https://code.google.com/images/developers.png)Protocol Buffers
+### ![Image result for google developer](3.png)Protocol Buffers
 
-By default, gRPC uses Protocol Buffers. According to [Google](https://developers.google.com/protocol-buffers/), protocol buffers are a language- and platform-neutral, efficient, extensible, automated mechanism for serializing structured data for use in communications protocols, data storage, and more. Protocol Buffers are 3 to 10 times smaller and 20 to 100 times faster than XML. Compiling source protocol buffers `.proto` file using generate data access classes that are easier to use programmatically.
+默认情况下gRPC使用Protocol Buffers。根据[Google官方的介绍](https://developers.google.com/protocol-buffers/)，Protocol Buffers是一种与语言和平台无关的、高效的、可扩展的自动化机制，用于序列化结构化的数据，以便在通信协议、数据存储等方面使用。Protocol Buffers比XML小3到10倍，并且快20到100倍。使用生成数据访问类编译的`.proto`源文件很容易以编程方式使用。
 
-> Protocol Buffers are 3 to 10 times smaller and 20 to 100 times faster than XML.
+> Protocol Buffers比XML小3到10倍，并且快20到100倍。
 
-Protocol buffers currently support generated code in Java, Python, Objective-C, and C++, Dart, Go, Ruby, and C#. For this post, we have compiled for Go. You can read more about the binary wire format of Protobuf on Google’s [Developers Portal](https://developers.google.com/protocol-buffers/docs/encoding).
+Protocol buffers 目前支持生成Java，Python，Objective-C，C++，Dart，Go，Ruby和C#代码。 本文我们编程成Go语言。你可以从Google的 [开发者页面](https://developers.google.com/protocol-buffers/docs/encoding)了解更多Protobuf二进制格式的信息。
 
-## ![Image result for envoy proxy](https://www.datawire.io/envoyproxy/assets/envoy-proxy-logo.png)Envoy Proxy
+### ![Image result for envoy proxy](4.png)Envoy Proxy
 
-According to the [Istio project](https://istio.io/docs/concepts/what-is-istio/#envoy), Istio uses an extended version of the [Envoy](https://www.envoyproxy.io/) proxy. Envoy is deployed as a sidecar to a relevant service in the same Kubernetes pod. Envoy, created by Lyft, is a high-performance proxy developed in C++ to mediate all inbound and outbound traffic for all services in the service mesh. Istio leverages Envoy’s many built-in features, including dynamic service discovery, load balancing, TLS termination, HTTP/2 and gRPC proxies, circuit-breakers, health checks, staged rollouts, fault injection, and rich metrics.
+根据[Istio项目](https://istio.io/docs/concepts/what-is-istio/#envoy)的介绍，Istio使用了一个扩展版本的 [Envoy](https://www.envoyproxy.io/) 代理。Envoy作为sidecar和与它相关的服务部署在同一个Kubernetes Pod中。Envoy由Lyft创建，是一个C++开发的高性能代理，为服务网格中的所有服务传送出入流量。Istio利用了Envoy的许多内置特性，包括动态服务发现，负载均衡，TLS终止，HTTP/2和gRPC代理，熔断、健康检查，灰度发布，故障注入和富指标等。
 
-According to the post by Harvey Tuch of Google, [Evolving a Protocol Buffer canonical API](https://blog.envoyproxy.io/evolving-a-protocol-buffer-canonical-api-e1b2c2ca0dec), Envoy proxy adopted Protocol Buffers, specifically [proto3](https://developers.google.com/protocol-buffers/docs/proto3), as the canonical specification of for version 2 of Lyft’s gRPC-first API.
+根据Google的Harvey Tuch的文章[Evolving a Protocol Buffer canonical API](https://blog.envoyproxy.io/evolving-a-protocol-buffer-canonical-api-e1b2c2ca0dec)，Envoy代理兼容Protocol Buffers，特别是[proto3](https://developers.google.com/protocol-buffers/docs/proto3)，作为Lyft gRPC API第二版本的首选规范。
 
-# Reference Microservices Platform
+## 涉及的微服务平台
 
 In the last two posts, we explored Istio’s observability tools, using a RESTful microservices-based API platform written in Go and using JSON over HTTP for service to service communications. The API platform was comprised of eight [Go-based](https://golang.org/) microservices and one sample Angular 7, [TypeScript-based](https://en.wikipedia.org/wiki/TypeScript) front-end web client. The various services are dependent on MongoDB, and RabbitMQ for event queue-based communications. Below, the is JSON over HTTP-based platform architecture.
 
