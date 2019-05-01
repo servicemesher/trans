@@ -45,33 +45,35 @@ Protocol buffers 目前支持生成Java，Python，Objective-C，C++，Dart，Go
 
 ## 涉及的微服务平台
 
-In the last two posts, we explored Istio’s observability tools, using a RESTful microservices-based API platform written in Go and using JSON over HTTP for service to service communications. The API platform was comprised of eight [Go-based](https://golang.org/) microservices and one sample Angular 7, [TypeScript-based](https://en.wikipedia.org/wiki/TypeScript) front-end web client. The various services are dependent on MongoDB, and RabbitMQ for event queue-based communications. Below, the is JSON over HTTP-based platform architecture.
+在前两篇文章中，我们探讨了Istio的可观察性工具，使用了用Go编写的基于RESTful的微服务的API平台，并使用JSON通过HTTP进行服务到服务的通信。API平台由8个基于 [Go](https://golang.org/) 的微服务和一个示例Angular 7，基于[TypeScript](https://en.wikipedia.org/wiki/TypeScript) 的前端web客户端组成。对于基于事件队列的通信，各种服务都依赖于MongoDB和RabbitMQ。下面是使用HTTP传输JSON的平台架构。
 
-[![Golang Service Diagram with Proxy v2](https://programmaticponderings.files.wordpress.com/2019/03/golang-service-diagram-with-proxy-v2.png?w=620)](https://programmaticponderings.files.wordpress.com/2019/03/golang-service-diagram-with-proxy-v2.png)
+[![Golang Service Diagram with Proxy v2](5.png)](https://programmaticponderings.files.wordpress.com/2019/03/golang-service-diagram-with-proxy-v2.png)
 
-Below, the current Angular 7-based web client interface.
+下面是Angular 7的web客户端接口。
 
-[![screen_shot_2019-04-15_at_10_23_47_pm](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_10_23_47_pm.png?w=620)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_10_23_47_pm.png)
+![screen_shot_2019-04-15_at_10_23_47_pm](6.png)
 
-## Converting to gRPC and Protocol Buffers
+### 转换到 gRPC 和 Protocol Buffers
 
 For this post, I have modified the eight Go microservices to use [gRPC](https://grpc.io/) and [Protocol Buffers](https://developers.google.com/protocol-buffers/), Google’s data interchange format. Specifically, the services use version 3 [release](https://github.com/protocolbuffers/protobuf/releases) (aka *proto3*) of Protocol Buffers. With gRPC, a gRPC client calls a gRPC server. Some of the platform’s services are gRPC servers, others are gRPC clients, while some act as both client and server, such as Service A, B, and E. The revised architecture is shown below.
 
-[![Golang-Service-Diagram-with-gRPC](https://programmaticponderings.files.wordpress.com/2019/04/golang-service-diagram-with-grpc-1.png?w=620)](https://programmaticponderings.files.wordpress.com/2019/04/golang-service-diagram-with-grpc-1.png)
+在本文中，我修改了8个Go微服务使用 [gRPC](https://grpc.io/) 和 [Protocol Buffers](https://developers.google.com/protocol-buffers/)（Google的数据交换格式）。具体来讲，服务使用了Protocol Buffers的[版本3]https://github.com/protocolbuffers/protobuf/releases（简称proto3）。使用gRPC的方式, 一个gRPC客户端会调用gRPC服务端。平台的一些服务是gRPC服务端，另一些是gRPC客户端，而一些同时充当客户端和服务端，如服务A、B和EE。修改后的体系结构如下所示。
 
-## gRPC Gateway
+![Golang-Service-Diagram-with-gRPC](7.png)
 
-Assuming for the sake of this demonstration, that most consumers of the API would still expect to communicate using a RESTful JSON over HTTP API, I have added a [gRPC Gateway](https://github.com/grpc-ecosystem/grpc-gateway) reverse proxy to the platform. The gRPC Gateway is a gRPC to JSON reverse proxy, a common architectural pattern, which proxies communications between the JSON over HTTP-based clients and the gRPC-based microservices. A diagram from the [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway) GitHub project site effectively demonstrates how the reverse proxy works.
+### gRPC 网关
 
-[![grpc_gateway.png](https://programmaticponderings.files.wordpress.com/2019/04/grpc_gateway.png?w=620)](https://github.com/grpc-ecosystem/grpc-gateway)
+假设为了进行这个演示，API的大多数消费者仍然希望使用RESTful JSON通过HTTP API进行通信，我已经向平台添加了一个[gRPC 网关](https://github.com/grpc-ecosystem/grpc-gateway) 作为反向代理。它是一个gRPC到JSON的反向代理，这是一种通用的架构模式，它通过基于HTTP的客户端代理JSON与基于gRPC的微服务进行通信。来自[grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway)的GitHub项目的图有效地演示了反向代理是如何工作的。
 
-*Image courtesy: https://github.com/grpc-ecosystem/grpc-gateway*
+[![grpc_gateway.png](8.png)](https://github.com/grpc-ecosystem/grpc-gateway)
 
-In the revised platform architecture diagram above, note the addition of the reverse proxy, which replaces Service A at the edge of the API. The proxy sits between the Angular-based Web UI and Service A. Also, note the communication method between services is now Protobuf over gRPC instead of JSON over HTTP. The use of Envoy Proxy (via Istio) is unchanged, as is the MongoDB Atlas-based databases and CloudAMQP RabbitMQ-based queue, which are still external to the Kubernetes cluster.
+*图像来源： https://github.com/grpc-ecosystem/grpc-gateway*
 
-### Alternatives to gRPC Gateway
+在上面的平台架构图中添加了反向代理，替换了API边缘的服务A。代理位于基于Angular的Web UI和服务A之间。此外，服务之间的通信方式是通过gRPC上的Protobuf，而不是HTTP上的JSON。Envoy代理（通过Istio）的使用没有改变，基于MongoDB Atlas的数据库和基于CloudAMQP RabbitMQ的队列也没有改变，它们仍然位于Kubernetes集群的外部。
 
-As an alternative to the gRPC Gateway reverse proxy, we could convert the TypeScript-based Angular UI client to gRPC and Protocol Buffers, and continue to communicate directly with Service A as the edge service. However, this would limit other consumers of the API to rely on gRPC as opposed to JSON over HTTP, unless we also chose to expose two different endpoints, gRPC, and JSON over HTTP, another common pattern.
+### 替换 gRPC 网关
+
+作为gRPC网关反向代理的替代方案，我们可以将基于TypeScript的Angular UI客户端转换为gRPC和Protocol Buffers，并继续作为边缘服务直接与服务A通信。然而，这将限制API的其他消费者依赖gRPC而不是HTTP和JSON，除非我们选择发布两个不同的endpoint：gRPC和HTTP JSON（这是另一种常见的模式）。
 
 # Demonstration
 
