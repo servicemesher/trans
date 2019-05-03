@@ -75,46 +75,55 @@ For this post, I have modified the eight Go microservices to use [gRPC](https://
 
 作为gRPC网关反向代理的替代方案，我们可以将基于TypeScript的Angular UI客户端转换为gRPC和Protocol Buffers，并继续作为边缘服务直接与服务A通信。然而，这将限制API的其他消费者依赖gRPC而不是HTTP和JSON，除非我们选择发布两个不同的endpoint：gRPC和HTTP JSON（这是另一种常见的模式）。
 
-# Demonstration
+# 演示
 
-In this post’s demonstration, we will repeat the exact same installation process, outlined in the previous post, [Kubernetes-based Microservice Observability with Istio Service Mesh](https://programmaticponderings.com/2019/03/10/kubernetes-based-microservice-observability-with-istio-service-mesh-part-1/). We will deploy the revised gRPC-based platform to GKE on GCP. You could just as easily follow [Azure Kubernetes Service (AKS) Observability with Istio Service Mesh](https://programmaticponderings.com/2019/03/31/azure-kubernetes-service-aks-observability-with-istio/), and deploy the platform to AKS.
+在本文的演示中，我们将重复上一篇文章（[Kubernetes-based Microservice Observability with Istio Service Mesh](https://programmaticponderings.com/2019/03/10/kubernetes-based-microservice-observability-with-istio-service-mesh-part-1/)）中完全相同的安装过程。我们将把修改后的基于grpc的平台部署到GCP的GKE上。你也可以遵循[Azure Kubernetes Service (AKS) Observability with Istio Service Mesh](https://programmaticponderings.com/2019/03/31/azure-kubernetes-service-aks-observability-with-istio/)，轻松的将平台部署到AKS。
 
-## Source Code
+## 源代码
 
-All source code for this post is available on GitHub, contained in three projects. The Go-based microservices source code, all Kubernetes resources, and all deployment scripts are located in the [k8s-istio-observe-backend](https://github.com/garystafford/k8s-istio-observe-backend) project repository, in the new `grpc` branch.
+本文的所有源代码都可以在GitHub上找到，包含了三个项目。基于Go的微服务源代码、所有Kubernetes资源和所有部署脚本都位于[k8s-istio-observe-backend](https://github.com/garystafford/k8s-istio-observe-backend)项目代码库的“grpc”分支中。
 
-```
-git clone \
+```bash
+$ git clone \
   --branch grpc --single-branch --depth 1 --no-tags \
   https://github.com/garystafford/k8s-istio-observe-backend.git
 ```
 
-The Angular-based web client source code is located in the [k8s-istio-observe-frontend](https://github.com/garystafford/k8s-istio-observe-frontend)repository on the new `grpc` branch. The source protocol buffers `.proto` file and the generated code, using the protocol buffers compiler, is located in the new [pb-greeting](https://github.com/garystafford/pb-greeting)project repository. You do not need to clone either of these projects for this post’s demonstration.
+基于angular的web客户端源代码在[k8s-istio-observe-frontend](https://github.com/garyst/k8s -istio-observe-frontend)代码库的"grpc"分支。.proto源文件和使用Protocol Buffers编译器生成的代码位于新的[pb-greeting](https://github.com/garystford/pb -greeting)项目代码库中。在本文的演示中，你不需要克隆这些项目中的任何一个。
 
-All Docker images for the services, UI, and the reverse proxy are located on [Docker Hub](https://hub.docker.com/search?q="garystafford&type=image&sort=updated_at&order=desc).
+所有的服务、UI和反向代理的的Docker镜像都在[Docker Hub](https://hub.docker.com/search?q="garystafford&type=image&sort=updated_at&order=desc)。
 
-## Code Changes
+## 代码变化
 
-This post is not specifically about writing Go for gRPC and Protobuf. However, to better understand the observability requirements and capabilities of these technologies, compared to JSON over HTTP, it is helpful to review some of the source code.
+本文并不是专门针对gRPC和Protobuf编写的。但是，为了更好地理解这些技术的可观察性需求和功能，与HTTP JSON相比，复查一些源代码是有帮助的。
 
-### Service A
+### 服务 A
 
-First, compare the source code for [Service A](https://github.com/garystafford/k8s-istio-observe-backend/blob/grpc/services/service-a/main.go), shown below, to the [original code](https://github.com/garystafford/k8s-istio-observe-backend/blob/master/services/service-a/main.go) in the previous post. The service’s code is almost completely re-written. I relied on several references for writing the code, including, [Tracing gRPC with Istio](https://aspenmesh.io/2018/04/tracing-grpc-with-istio/), written by Neeraj Poddar of [Aspen Mesh](https://aspenmesh.io/) and [Distributed Tracing Infrastructure with Jaeger on Kubernetes](https://medium.com/@masroor.hasan/tracing-infrastructure-with-jaeger-on-kubernetes-6800132a677), by Masroor Hasan.
+首先，将如下所示的服务A的源代码与前一篇文章中的原始代码进行比较。服务的代码几乎被完全重写。编写代码时，我依赖于几个参考资料，包括[使用Istio追踪gRPC](https://aspenmesh.io/2018/04/tracing-grpc-with-istio/)，由Aspen Mesh的Neeraj Poddar编写，和Masroor Hasan撰写的[Kubernetes上的分布式追踪架构Jeager](https://medium.com/@masroor.hasan/tracing-infrastructure-with-jaeger-on-kubernetes-6800132a677)。
 
-Specifically, note the following code changes to Service A:
+下面是服务A具体的代码变化：
 
-- Import of the [pb-greeting](https://github.com/garystafford/pb-greeting) protobuf package;
-- Local Greeting struct replaced with `pb.Greeting` struct;
-- All services are now hosted on port `50051`;
-- The HTTP server and all API resource handler functions are removed;
-- Headers, used for distributed tracing with Jaeger, have moved from HTTP request object to metadata passed in the gRPC context object;
-- Service A is coded as a gRPC server, which is called by the gRPC Gateway reverse proxy (gRPC client) via the `Greeting` function;
-- The primary `PingHandler` function, which returns the service’s Greeting, is replaced by the [pb-greeting](https://github.com/garystafford/pb-greeting) protobuf package’s `Greeting` function;
-- Service A is coded as a gRPC client, calling both Service B and Service C using the `CallGrpcService` function;
-- CORS handling is offloaded to Istio;
-- Logging methods are unchanged;
+- 导入[pb-greeting](https://github.com/garystafford/pb-greeting) protobuf 包；
 
-Source code for revised gRPC-based [Service A](https://github.com/garystafford/k8s-istio-observe-backend/blob/grpc/services/service-a/main.go) ([*gist*](https://gist.github.com/garystafford/cb73d9037d2e492c3031a5fd3c8c3a5f)):
+- 本地 Greeting 结构体被 `pb.Greeting` 结构体替代；
+
+- 所有的服务都基于 `50051`端口；
+
+  HTTP 服务器和所有的 API 资源处理器函数被移除；
+
+- 用于做Jeager的分布式追踪的请求头信息从HTTP的请求对象中移动到了gPRC context对象中的metadata里；
+
+- 服务A作为gRPC服务端，被gRPC网关反向代理(客户端)通过Greeting函数调用；
+
+- 主要的 `PingHandler` 函数，返回服务的 Greeting，被 [pb-greeting](https://github.com/garystafford/pb-greeting) protobuf 包的 `Greeting函数替代；
+
+- 服务A作为gRPC客户端，使用CallGrpcService` 函数调用服务B和服务C；
+
+- CORS 被从Istio中卸载；
+
+- Logging 方法没有改变；
+
+基于gRPC的[服务 A](https://github.com/garystafford/k8s-istio-observe-backend/blob/grpc/services/service-a/main.go) 的源码如下([*要点*](https://gist.github.com/garystafford/cb73d9037d2e492c3031a5fd3c8c3a5f)):
 
 ```go
 // author: Gary A. Stafford
@@ -274,7 +283,7 @@ func main() {
 
 ### Greeting Protocol Buffers
 
-Shown below is the greeting source protocol buffers `.proto` file. The greeting response struct, originally defined in the services, remains largely unchanged (*gist*). The UI client responses will look identical.
+下面显示的是greeting的 .proto源文件。最初在服务中定义的greeting返回结构体大体上没变。UI客户端响应看起来也是一样的。
 
 ```protocol-buffer
 syntax = "proto3";
@@ -312,9 +321,9 @@ service GreetingService {
 }
 ```
 
-When compiled with `protoc`,  the Go-based protocol compiler plugin, the original 27 lines of source code swells to almost 270 lines of generated data access classes that are easier to use programmatically.
+使用基于Go的协议编译器插件protoc进行编译时，最初的27行源代码膨胀到几乎270行，生成的数据访问类更容易通过编程使用。
 
-```
+```bash
 # Generate gRPC stub (.pb.go)
 protoc -I /usr/local/include -I. \
   -I ${GOPATH}/src \
@@ -337,7 +346,7 @@ protoc -I /usr/local/include -I. \
   greeting.proto
 ```
 
-Below is a small snippet of that compiled code, for reference. The compiled code is included in the [pb-greeting](https://github.com/garystafford/pb-greeting) project on GitHub and imported into each microservice and the reverse proxy (*gist*). We also compile a separate version for the reverse proxy to implement.
+下面是编译代码的一小段，供参考。编译后的代码包含在GitHub上的 [pb-greeting](https://github.com/garystafford/pb-greeting) 项目中，并导入到每个微服务和反向代理(gist)中。我们还编译了一个单独的版本来实现反向代理。
 
 ```go
 // Code generated by protoc-gen-go. DO NOT EDIT.
@@ -398,17 +407,21 @@ func (m *Greeting) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Greeting.Marshal(b, m, deterministic)
 ```
 
-Using Swagger, we can view the greeting protocol buffers’ single RESTful API resource, exposed with an HTTP GET method. I use the Docker-based version of [Swagger UI](https://hub.docker.com/r/swaggerapi/swagger-ui/) for viewing `protoc` generated swagger definitions.
 
-```
+
+使用Swagger，我们可以查看greeting protocol buffers的单个RESTful API资源，该资源使用HTTP GET方法公开。我使用基于docker版本的[Swagger UI](https://hub.docker.com/r/swaggerapi/swagger-ui/)来查看原生代码生成的Swagger定义。
+
+```bash
 docker run -p 8080:8080 -d --name swagger-ui \
   -e SWAGGER_JSON=/tmp/greeting.swagger.json \
   -v ${GOAPTH}/src/pb-greeting:/tmp swaggerapi/swagger-ui
 ```
 
-The Angular UI makes an HTTP GET request to the `/api/v1/greeting` resource, which is transformed to gRPC and proxied to Service A, where it is handled by the `Greeting`function.
 
-[![screen_shot_2019-04-15_at_9_05_23_pm](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_9_05_23_pm.png?w=620)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_9_05_23_pm.png)
+
+Angular UI向“/api/v1/greeting”资源发出HTTP GET请求，该资源被转换为gRPC并代理到Service A，在那里由“greeting”函数处理。
+
+[![screen_shot_2019-04-15_at_9_05_23_pm](9.png)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_9_05_23_pm.png)
 
 ### gRPC Gateway Reverse Proxy
 
