@@ -423,17 +423,19 @@ Angular UI向“/api/v1/greeting”资源发出HTTP GET请求，该资源被转�
 
 [![screen_shot_2019-04-15_at_9_05_23_pm](9.png)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_9_05_23_pm.png)
 
-### gRPC Gateway Reverse Proxy
+### gRPC 网关反向代理
 
-As explained earlier, the [gRPC Gateway](https://github.com/grpc-ecosystem/grpc-gateway) reverse proxy service is completely new. Specifically, note the following code features in the gist below:
+如前所述，[gRPC 网关](https://github.com/grpc-ecosystem/grpc-gateway) 反向代理是全新的，下面列出了主要的代码特性：
 
-- Import of the [pb-greeting](https://github.com/garystafford/pb-greeting) protobuf package;
-- The proxy is hosted on port `80`;
-- Request headers, used for distributed tracing with Jaeger, are collected from the incoming HTTP request and passed to Service A in the gRPC context;
-- The proxy is coded as a gRPC client, which calls Service A;
-- Logging is largely unchanged;
+如前所述，gRPC网关反向代理服务是全新的。
 
-The source code for the [Reverse Proxy](https://github.com/garystafford/k8s-istio-observe-backend/blob/grpc/services/service-rev-proxy/main.go) (*gist*):
+- 导入 [pb-greeting](https://github.com/garystafford/pb-greeting) protobuf 包；
+- 代理使用 `80`端口；
+- 用于与Jaeger一起进行分布式跟踪的请求头从传入的HTTP请求中收集信息，并传递给gRPC上下文中的服务A；
+- 代理被编写为gRPC客户端，调用服务A；
+- 日志大部分没有改变；
+
+[反向代理](https://github.com/garystafford/k8s-istio-observe-backend/blob/grpc/services/service-rev-proxy/main.go) 源码如下：
 
 ```go
 // author: Gary A. Stafford
@@ -554,13 +556,13 @@ func main() {
 }
 ```
 
-Below, in the Stackdriver logs, we see an example of a set of HTTP request headers in the JSON payload, which are propagated upstream to gRPC-based Go services from the gRPC Gateway’s reverse proxy. Header propagation ensures the request produces a complete distributed trace across the complete service call chain.
+在下面显示的Stackdriver日志中，我们看到JSON有效负载中的一组HTTP请求头的示例，它们从gRPC网关的反向代理被传播到上游基于gRPC的Go服务。头传播确保请求在整个服务调用链上生成完整的分布式追踪。
 
-[![screen_shot_2019-04-15_at_11_10_50_pm](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_11_10_50_pm.png?w=620)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_11_10_50_pm.png)
+[![screen_shot_2019-04-15_at_11_10_50_pm](10.png)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_11_10_50_pm.png)
 
-### Istio VirtualService and CORS
+### Istio 虚拟服务和 CORS
 
-According to feedback in the project’s [GitHub Issues](https://github.com/grpc/grpc-web/issues/435#issuecomment-454113721), the gRPC Gateway does not directly support Cross-Origin Resource Sharing (CORS) policy. In my own experience, the gRPC Gateway cannot handle OPTIONS HTTP method requests, which must be issued by the Angular 7 web UI. Therefore, I have offloaded CORS responsibility to Istio, using the VirtualService resource’s [CorsPolicy](https://istio.io/docs/reference/config/networking/v1alpha3/virtual-service/#CorsPolicy) configuration. This makes CORS much easier to manage than coding CORS configuration into service code ([*gist*](https://gist.github.com/garystafford/b8cc4dccdcc39c3e6537e93c54f322bf)):
+根据[GitHub](https://github.com/grpc/grpc-web/issues/435#issuecomment-454113721)项目中反馈的问题，gRPC网关不直接支持跨源资源共享（Cross-Origin Resource Sharing, CORS）策略。根据我的经验，gRPC网关不能处理选项HTTP方法请求，必须由Angular 7的web UI发出。因此，我使用虚拟服务资源的 [CorsPolicy](https://istio.io/docs/reference/config/networking/v1alpha3/virtual-service/#CorsPolicy) 配置将CORS的职责转移给了Istio。这使得CORS比硬编码到服务代码中更容易管理：
 
 ```yaml
 apiVersion: networking.istio.io/v1alpha3
@@ -593,18 +595,18 @@ spec:
       - "*"
 ```
 
-## Set-up and Installation
+## 安装
 
-To deploy the microservices platform to GKE, follow the detailed instructions in part one of the post, [Kubernetes-based Microservice Observability with Istio Service Mesh: Part 1](https://programmaticponderings.com/2019/03/10/kubernetes-based-microservice-observability-with-istio-service-mesh-part-1/), or [Azure Kubernetes Service (AKS) Observability with Istio Service Mesh](https://programmaticponderings.com/2019/03/31/azure-kubernetes-service-aks-observability-with-istio/) for AKS.
+要将微服务平台部署到GKE，请遵循本文第一部分的详细说明，或[基于Kubernetes的微服务可观察性与Istio服务网格:第1部分](https://programmaticponderings.com/2019/03/10/kubernetes-based-microservice-observability-with-istio-service-mesh-part-1/)， 或针对AKS的 [Azure Kubernetes服务(AKS)可观察性与Istio服务网格](https://programmaticponderings.com/2019/03/31/azure-kubernetes-service-aks-observability-with-istio/)。
 
-1. Create the external MongoDB Atlas database and CloudAMQP RabbitMQ clusters;
-2. Modify the Kubernetes resource files and bash scripts for your own environments;
-3. Create the managed GKE or AKS cluster on GCP or Azure;
-4. Configure and deploy Istio to the managed Kubernetes cluster, using Helm;
-5. Create DNS records for the platform’s exposed resources;
-6. Deploy the Go-based microservices, gRPC Gateway reverse proxy, Angular UI, and associated resources to Kubernetes cluster;
-7. Test and troubleshoot the platform deployment;
-8. Observe the results;
+1. 创建额外的MongoDB Atlas 数据库和CloudAMQP RabbitMQ 集群；
+2. 为你的环境修改Kubernetes资源文件和bash脚本；
+3. 在GCP或Azure上创建可管理的GKE或AKS；
+4. 使用Helm配置和部署Istio到Kubernetes集群；
+5. 为平台暴露出去的资源创建DNS记录；
+6. 在Kubernetes集群上部署基于Go的微服务、gPRC网关反向代理、Angular UI和相关的资源；
+7. 测试和排查平台部署的问题；
+8. 观察结果。
 
 # The Three Pillars
 
