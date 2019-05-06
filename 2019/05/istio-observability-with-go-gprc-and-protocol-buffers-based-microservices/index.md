@@ -608,29 +608,29 @@ spec:
 7. 测试和排查平台部署的问题；
 8. 观察结果。
 
-# The Three Pillars
+# 三大支柱
 
-As introduced in the first post, logs, metrics, and traces are often known as the three pillars of observability. These are the external outputs of the system, which we may observe. As modern distributed systems grow ever more complex, the ability to observe those systems demands equally modern tooling that was designed with this level of complexity in mind. Traditional logging and monitoring systems often struggle with today’s hybrid and multi-cloud, polyglot language-based, event-driven, container-based and serverless, infinitely-scalable, ephemeral-compute platforms.
+正如在第一篇文章中介绍的，日志、度量和追踪通常被称为可观察性的三大支柱。这些是我们可以观察到的系统的外部输出。随着现代分布式系统变得越来越复杂，观察这些系统的能力同样需要现代化的工具，具有这种级别的复杂性需要在设计时考虑到。在如今混合云、多语言、基于事件驱动、基于容器和serverless、可无限扩展的临时计算平台下传统的日志记录和监视系统常常难以胜任。
 
-Tools like [Istio Service Mesh](https://istio.io/) attempt to solve the observability challenge by offering native integrations with several best-of-breed, open-source telemetry tools. Istio’s integrations include [Jaeger](https://www.jaegertracing.io/) for distributed tracing, [Kiali](https://www.kiali.io/) for Istio service mesh-based microservice visualization and monitoring, and [Prometheus](https://prometheus.io/) and [Grafana](https://grafana.com/) for metric collection, monitoring, and alerting. Combined with cloud platform-native monitoring and logging services, such as [Stackdriver](https://cloud.google.com/monitoring/) for GKE, [CloudWatch](https://aws.amazon.com/cloudwatch/) for Amazon’s EKS, or [Azure Monitor](https://docs.microsoft.com/en-us/azure/azure-monitor/overview) logs for AKS, and we have a complete observability solution for modern, distributed, Cloud-based applications.
+像[Istio服务网格](https://istio.io/) 这样的工具尝试通过与几个最好的开源遥测工具集成来解决可观测性的挑战。Istio的集成包括用于分布式追踪的[Jaeger](https://www.jaegertracing.io/)，用于基于Istio服务网格的微服务可视化和监控的[Kiali](https://www.kiali.io/)，以及用于度量收集、监控和报警的[Prometheus](https://prometheus.io/) 和 [Grafana](https://grafana.com/) 。与云平台本地监视和日志服务相结合，例如针对GKE的[Stackdriver](https://cloud.google.com/monitoring/)、针对Amazon的EKS的[CloudWatch](https://aws.amazon.com/cloudwatch/)或针对AKS的[Azure Monitor](https://docs.microsoft.com/en-us/azure/azure-monitor/overview) 日志，我们为现代的、分布式的、基于云的应用程序提供了完整的可观察性解决方案。
 
-## Pillar 1: Logging
+## 支柱 1: 日志
 
-Moving from JSON over HTTP to gRPC does not require any changes to the logging configuration of the Go-based service code or Kubernetes resources.
+对基于Go语言的服务代码或Kubernetes资源的日志配置来说，从HTTP JSON转到gRPC不需要任何改变。
 
-### Stackdriver with Logrus
+### 带有Logrus的Stackdriver
 
-As detailed in part two of the last post, [Kubernetes-based Microservice Observability with Istio Service Mesh](https://programmaticponderings.com/2019/03/21/kubernetes-based-microservice-observability-with-istio-service-mesh-part-2/), our logging strategy for the eight Go-based microservices and the reverse proxy continues to be the use of [Logrus](https://github.com/sirupsen/logrus), the popular structured logger for Go, and Banzai Cloud’s [logrus-runtime-formatter](https://github.com/sirupsen/logrus).
+正如上一篇文章的第二部分（[基于kubernetes的微服务可观察性与Istio服务网格](https://programmaticponderings.com/2019/03/21/kubernetes-based-microservice-observability-with-istio-service-mesh-part-2/)）所提到的，我们针对8个基于Go的微服务和反向代理的日志策略仍然是使用[Logrus](https://github.com/sirupsen/logrus)(流行的Go语言结构化日志系统)和Banzai Cloud的[logrus-runtime-formatter](https://github.com/sirupsen/logrus)。
 
-If you recall, the Banzai formatter automatically tags log messages with runtime/stack information, including function name and line number; extremely helpful when troubleshooting. We are also using Logrus’ JSON formatter. Below, in the Stackdriver console, note how each log entry below has the JSON payload contained within the message with the log level, function name, lines on which the log entry originated, and the message.
+如果您还记得，Banzai formatter会自动将运行时/堆栈信息（包括函数名和行号）标记在日志消息里；在排查故障时非常有用。我们还使用Logrus的JSON formatter。在下面显示的Stackdriver控制台中，注意下面的每个日志条目如何在消息中包含JSON有效负载，包含日志级别、函数名、日志条目的起始行和消息。
 
-[![screen_shot_2019-04-15_at_11_10_36_pm](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_11_10_36_pm.png?w=620)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_11_10_36_pm.png)
+[![screen_shot_2019-04-15_at_11_10_36_pm](11.png)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_11_10_36_pm.png)
 
-Below, we see the details of a specific log entry’s JSON payload. In this case, we can see the request headers propagated from the downstream service.
+下图是一个特定日志条目的JSON有效负载的详细信息。在这个示例中，我们可以看到从下游服务传来的请求头。
 
-[![screen_shot_2019-04-15_at_11_10_50_pm](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_11_10_50_pm.png?w=620)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_11_10_50_pm.png)
+[![screen_shot_2019-04-15_at_11_10_50_pm](12.png)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_11_10_50_pm.png)
 
-## Pillar 2: Metrics
+## 支柱 2: 度量
 
 Moving from JSON over HTTP to gRPC does not require any changes to the metrics configuration of the Go-based service code or Kubernetes resources.
 
