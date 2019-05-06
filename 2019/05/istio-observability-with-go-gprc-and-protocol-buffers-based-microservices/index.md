@@ -3,31 +3,31 @@ original: https://programmaticponderings.com/2019/04/17/istio-observability-with
 author: "Gary Stafford"
 translator: "malphi"
 reviewer: ["rootsongjc"]
-title: "Istio和Linkerd的CPU基准测试"
-description: "基于Go、gRPC和Protobuf的微服务的Istio可观察性"
+title: "基于Go、gRPC和Protobuf的微服务的Istio可观察性"
+description: "本文介绍了基于Go/gRPC的微服务实现，以及Istio下集成的几个可视化工具"
 categories: "translation"
 tags: ["istio","microservice"]
 originalPublishDate: 2019-04-17
-publishDate: 2019-05-06
+publishDate: 2019-05-07
 ---
 
-# 基于Go、gRPC和Protobuf的微服务的Istio可观察性
+# 基于Go、gRPC和Protobuf的微服务的Istio可观测性
 
 [编者按]
 
-> todo
+> 本文演示了如何基于Go语言、gRPC和Protobuf技术构建一个微服务，并着重介绍了实现Istio可观测功能的三大支柱：日志、度量和追踪，以及与之对应的工具Logrus、Prometheus、Grafana、Jeager等。通过文章内容和示例代码，读者会对如何构建gRPC技术栈的微服务和使用Istio可视化工具观测服务的实现方案有一个全面的认识。
 
-在过去的两篇文章中（[具有Istio服务网格的基于Kubernetes的微服务可视化](https://programmaticponderings.com/2019/03/10/kubernetes-based-microservice-observability-with-istio-service-mesh-part-1/) 和 [具有Istio服务网格的AKS可视化](https://programmaticponderings.com/2019/03/31/azure-kubernetes-service-aks-observability-with-istio/)），我们探索了包含在Istio服务网格中的可视化工具。目前这些工具包括用于指标收集、监控和报警的[Prometheus](https://prometheus.io/) 和 [Grafana](https://grafana.com/)，用做分布式追踪的[Jaeger](https://www.jaegertracing.io/)，以及基于Istio服务网格的微服务可视化和监控工具[Kiali](https://www.kiali.io/)。和云平台原生的监控、日志服务相比（例如GCP的 [Stackdriver](https://cloud.google.com/monitoring/)，AWS上的 [CloudWatch](https://aws.amazon.com/cloudwatch/)，Azure上的 [Azure Monitor](https://docs.microsoft.com/en-us/azure/azure-monitor/overview)），我们有针对现代化的、分布式的云应用的全面的可视化解决方案。
+在过去的两篇文章中（[具有Istio服务网格的基于Kubernetes的微服务可视化](https://programmaticponderings.com/2019/03/10/kubernetes-based-microservice-observability-with-istio-service-mesh-part-1/) 和 [具有Istio服务网格的AKS可视化](https://programmaticponderings.com/2019/03/31/azure-kubernetes-service-aks-observability-with-istio/)），我们探索了包含在Istio服务网格中的可视化工具，包括用于指标收集、监控和报警的[Prometheus](https://prometheus.io/) 和 [Grafana](https://grafana.com/)，用做分布式追踪的[Jaeger](https://www.jaegertracing.io/)，以及基于Istio服务网格的微服务可视化和监控工具[Kiali](https://www.kiali.io/)。和云平台原生的监控、日志服务相比（例如GCP的 [Stackdriver](https://cloud.google.com/monitoring/)，AWS上的 [CloudWatch](https://aws.amazon.com/cloudwatch/)，Azure上的 [Azure Monitor](https://docs.microsoft.com/en-us/azure/azure-monitor/overview)），我们有针对现代化的、分布式的云应用的全面的可视化解决方案。
 
-在这篇文章中，我们将考察使用Istio可视化工具来监控基于Go语言的微服务，它们使用 [Protocol Buffers](https://developers.google.com/protocol-buffers/)以及[gRPC](https://grpc.io/)和[HTTP/2](https://en.wikipedia.org/wiki/HTTP/2)作为客户端-服务端通信，这与传统的基于REST JSON和HTTP进行通信相反。我们将看到Kubernetes、Istio、Envoy和可视化工具如何与gRPC无缝地工作，就像在[Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/)上通过HTTP处理JSON一样。
+在这篇文章中，我们将考察使用Istio可视化工具来监控基于Go语言的微服务，它们使用 [Protocol Buffers](https://developers.google.com/protocol-buffers/)以及[gRPC](https://grpc.io/)和[HTTP/2](https://en.wikipedia.org/wiki/HTTP/2)作为客户端-服务端通信，这与传统的基于REST JSON和HTTP进行通信是不同的。我们将看到Kubernetes、Istio、Envoy和可视化工具如何与gRPC无缝地工作，就像在[Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/)上通过HTTP处理JSON一样。
 
-![1](1.png)
+[![screen_shot_2019-04-18_at_6_03_38_pm](1.png)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-18_at_6_03_38_pm.png)
 
 ## 技术
 
-### ![Image result for grpc logo](2.png)gRPC
+### ![Image result for grpc logo](2-1.png)gRPC
 
-根据[gRPC项目](https://grpc.io/)看， gRPC是[CNCF](https://www.cncf.io/)的孵化项目，一个现代化的、高性能、开源和通用的[RPC](https://en.wikipedia.org/wiki/remote_procedure re_call)框架，可以在任何地方运行。它使客户端和服务端应用能够透明地通信，并更加容易的构建连接系统。Google是gRPC最初的开发者，多年来一直使用gRPC中的底层技术和概念。当前的实现用于几个谷歌的云产品和对外的API。许多其他组织也在使用它，比如Square、Netflix、CoreOS、Docker、CockroachDB、Cisco、Juniper Networks等。
+根据[gRPC项目](https://grpc.io/)， gRPC是[CNCF](https://www.cncf.io/)的孵化项目，一个现代化的、高性能、开源和通用的[RPC](https://en.wikipedia.org/wiki/remote_procedure re_call)框架，可以在任何地方运行。它使客户端和服务端应用能够透明地通信，并更加容易的构建连接系统。Google是gRPC最初的开发者，多年来一直使用gRPC中的底层技术和概念。当前的实现用于几个谷歌的云产品和对外的API。许多其他组织也在使用它，比如Square、Netflix、CoreOS、Docker、CockroachDB、Cisco、Juniper Networks等。
 
 ### ![Image result for google developer](3.png)Protocol Buffers
 
@@ -37,7 +37,7 @@ publishDate: 2019-05-06
 
 Protocol buffers 目前支持生成Java，Python，Objective-C，C++，Dart，Go，Ruby和C#代码。 本文我们编程成Go语言。你可以从Google的 [开发者页面](https://developers.google.com/protocol-buffers/docs/encoding)了解更多Protobuf二进制格式的信息。
 
-### ![Image result for envoy proxy](4.png)Envoy Proxy
+### ![Image result for envoy proxy](4-1.png)Envoy Proxy
 
 根据[Istio项目](https://istio.io/docs/concepts/what-is-istio/#envoy)的介绍，Istio使用了一个扩展版本的 [Envoy](https://www.envoyproxy.io/) 代理。Envoy作为sidecar和与它相关的服务部署在同一个Kubernetes Pod中。Envoy由Lyft创建，是一个C++开发的高性能代理，为服务网格中的所有服务传送出入流量。Istio利用了Envoy的许多内置特性，包括动态服务发现，负载均衡，TLS终止，HTTP/2和gRPC代理，熔断、健康检查，灰度发布，故障注入和富指标等。
 
@@ -53,11 +53,9 @@ Protocol buffers 目前支持生成Java，Python，Objective-C，C++，Dart，Go
 
 ![screen_shot_2019-04-15_at_10_23_47_pm](6.png)
 
-### 转换到 gRPC 和 Protocol Buffers
+### 转到 gRPC 和 Protocol Buffers
 
-For this post, I have modified the eight Go microservices to use [gRPC](https://grpc.io/) and [Protocol Buffers](https://developers.google.com/protocol-buffers/), Google’s data interchange format. Specifically, the services use version 3 [release](https://github.com/protocolbuffers/protobuf/releases) (aka *proto3*) of Protocol Buffers. With gRPC, a gRPC client calls a gRPC server. Some of the platform’s services are gRPC servers, others are gRPC clients, while some act as both client and server, such as Service A, B, and E. The revised architecture is shown below.
-
-在本文中，我修改了8个Go微服务使用 [gRPC](https://grpc.io/) 和 [Protocol Buffers](https://developers.google.com/protocol-buffers/)（Google的数据交换格式）。具体来讲，服务使用了Protocol Buffers的[版本3]https://github.com/protocolbuffers/protobuf/releases（简称proto3）。使用gRPC的方式, 一个gRPC客户端会调用gRPC服务端。平台的一些服务是gRPC服务端，另一些是gRPC客户端，而一些同时充当客户端和服务端，如服务A、B和EE。修改后的体系结构如下所示。
+在本文中，我修改了8个Go微服务使用 [gRPC](https://grpc.io/) 和 [Protocol Buffers](https://developers.google.com/protocol-buffers/)（Google的数据交换格式）。具体来讲，服务使用了Protocol Buffers的[版本3](https://github.com/protocolbuffers/protobuf/releases)（简称proto3）。使用gRPC的方式, 一个gRPC客户端会调用gRPC服务端。平台的一些服务是gRPC服务端，另一些是gRPC客户端，而一些同时充当客户端和服务端，如服务A、B和EE。修改后的体系结构如下所示。
 
 ![Golang-Service-Diagram-with-gRPC](7.png)
 
@@ -84,7 +82,7 @@ For this post, I have modified the eight Go microservices to use [gRPC](https://
 本文的所有源代码都可以在GitHub上找到，包含了三个项目。基于Go的微服务源代码、所有Kubernetes资源和所有部署脚本都位于[k8s-istio-observe-backend](https://github.com/garystafford/k8s-istio-observe-backend)项目代码库的“grpc”分支中。
 
 ```bash
-$ git clone \
+git clone \
   --branch grpc --single-branch --depth 1 --no-tags \
   https://github.com/garystafford/k8s-istio-observe-backend.git
 ```
@@ -134,7 +132,6 @@ $ git clone \
 
 package main
 
-
 import (
 	"context"
 	"github.com/banzaicloud/logrus-runtime-formatter"
@@ -148,7 +145,6 @@ import (
 	"os"
 	"time"
 
-
 	pb "github.com/garystafford/pb-greeting"
 )
 
@@ -157,19 +153,15 @@ const (
 	port = ":50051"
 )
 
-
 type greetingServiceServer struct {
 }
-
 
 var (
 	greetings []*pb.Greeting
 )
 
-
 func (s *greetingServiceServer) Greeting(ctx context.Context, req *pb.GreetingRequest) (*pb.GreetingResponse, error) {
 	greetings = nil
-
 
 	tmpGreeting := pb.Greeting{
 		Id:      uuid.New().String(),
@@ -178,19 +170,15 @@ func (s *greetingServiceServer) Greeting(ctx context.Context, req *pb.GreetingRe
 		Created: time.Now().Local().String(),
 	}
 
-
 	greetings = append(greetings, &tmpGreeting)
-
 
 	CallGrpcService(ctx, "service-b:50051")
 	CallGrpcService(ctx, "service-c:50051")
-
 
 	return &pb.GreetingResponse{
 		Greeting: greetings,
 	}, nil
 }
-
 
 func CallGrpcService(ctx context.Context, address string) {
 	conn, err := createGRPCConn(ctx, address)
@@ -199,20 +187,15 @@ func CallGrpcService(ctx context.Context, address string) {
 	}
 	defer conn.Close()
 
-
 	headersIn, _ := metadata.FromIncomingContext(ctx)
 	log.Infof("headersIn: %s", headersIn)
-
 
 	client := pb.NewGreetingServiceClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 
-
 	ctx = metadata.NewOutgoingContext(context.Background(), headersIn)
 
-
 	defer cancel()
-
 
 	req := pb.GreetingRequest{}
 	greeting, err := client.Greeting(ctx, &req)
@@ -220,13 +203,10 @@ func CallGrpcService(ctx context.Context, address string) {
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-
-
 	for _, greeting := range greeting.GetGreeting() {
 		greetings = append(greetings, greeting)
 	}
 }
-
 
 func createGRPCConn(ctx context.Context, addr string) (*grpc.ClientConn, error) {
 	//https://aspenmesh.io/2018/04/tracing-grpc-with-istio/
@@ -246,14 +226,12 @@ func createGRPCConn(ctx context.Context, addr string) (*grpc.ClientConn, error) 
 	return conn, nil
 }
 
-
 func getEnv(key, fallback string) string {
 	if value, ok := os.LookupEnv(key); ok {
 		return value
 	}
 	return fallback
 }
-
 
 func init() {
 	formatter := runtime.Formatter{ChildFormatter: &log.JSONFormatter{}}
@@ -267,13 +245,11 @@ func init() {
 	log.SetLevel(level)
 }
 
-
 func main() {
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-
 
 	s := grpc.NewServer()
 	pb.RegisterGreetingServiceServer(s, &greetingServiceServer{})
@@ -289,9 +265,7 @@ func main() {
 syntax = "proto3";
 package greeting;
 
-
 import "google/api/annotations.proto";
-
 
 message Greeting {
     string id = 1;
@@ -299,19 +273,12 @@ message Greeting {
     string message = 3;
     string created = 4;
 }
-
-
-
-
 message GreetingRequest {
 }
-
 
 message GreetingResponse {
     repeated Greeting greeting = 1;
 }
-
-
 service GreetingService {
     rpc Greeting (GreetingRequest) returns (GreetingResponse) {
         option (google.api.http) = {
@@ -346,68 +313,7 @@ protoc -I /usr/local/include -I. \
   greeting.proto
 ```
 
-下面是编译代码的一小段，供参考。编译后的代码包含在GitHub上的 [pb-greeting](https://github.com/garystafford/pb-greeting) 项目中，并导入到每个微服务和反向代理(gist)中。我们还编译了一个单独的版本来实现反向代理。
-
-```go
-// Code generated by protoc-gen-go. DO NOT EDIT.
-// source: greeting.proto
-
-
-package greeting
-
-
-import (
-	context "context"
-	fmt "fmt"
-	proto "github.com/golang/protobuf/proto"
-	_ "google.golang.org/genproto/googleapis/api/annotations"
-	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
-	math "math"
-)
-
-
-// Reference imports to suppress errors if they are not otherwise used.
-var _ = proto.Marshal
-var _ = fmt.Errorf
-var _ = math.Inf
-
-
-// This is a compile-time assertion to ensure that this generated file
-// is compatible with the proto package it is being compiled against.
-// A compilation error at this line likely means your copy of the
-// proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
-
-
-type Greeting struct {
-	Id                   string   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Service              string   `protobuf:"bytes,2,opt,name=service,proto3" json:"service,omitempty"`
-	Message              string   `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
-	Created              string   `protobuf:"bytes,4,opt,name=created,proto3" json:"created,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-
-func (m *Greeting) Reset()         { *m = Greeting{} }
-func (m *Greeting) String() string { return proto.CompactTextString(m) }
-func (*Greeting) ProtoMessage()    {}
-func (*Greeting) Descriptor() ([]byte, []int) {
-	return fileDescriptor_6acac03ccd168a87, []int{0}
-}
-
-
-func (m *Greeting) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Greeting.Unmarshal(m, b)
-}
-func (m *Greeting) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Greeting.Marshal(b, m, deterministic)
-```
-
-
+下面是编译代码的一小段，供参考。编译后的代码包含在GitHub上的 [pb-greeting](https://github.com/garystafford/pb-greeting) 项目中，并导入到每个微服务和反向代理（[要点](https://gist.github.com/garystafford/57ab662f19a2d2c85d2882bb9e280430)）。我们还编译了一个单独的版本来实现反向代理。
 
 使用Swagger，我们可以查看greeting protocol buffers的单个RESTful API资源，该资源使用HTTP GET方法公开。我使用基于docker版本的[Swagger UI](https://hub.docker.com/r/swaggerapi/swagger-ui/)来查看原生代码生成的Swagger定义。
 
@@ -416,8 +322,6 @@ docker run -p 8080:8080 -d --name swagger-ui \
   -e SWAGGER_JSON=/tmp/greeting.swagger.json \
   -v ${GOAPTH}/src/pb-greeting:/tmp swaggerapi/swagger-ui
 ```
-
-
 
 Angular UI向“/api/v1/greeting”资源发出HTTP GET请求，该资源被转换为gRPC并代理到Service A，在那里由“greeting”函数处理。
 
