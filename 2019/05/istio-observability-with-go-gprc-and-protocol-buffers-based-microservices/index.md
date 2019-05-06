@@ -632,25 +632,27 @@ spec:
 
 ## 支柱 2: 度量
 
-Moving from JSON over HTTP to gRPC does not require any changes to the metrics configuration of the Go-based service code or Kubernetes resources.
+对基于Go语言的服务代码或Kubernetes资源的度量配置来说，从HTTP JSON转到gRPC不需要任何改变。
 
 ### Prometheus
 
 [Prometheus](https://prometheus.io/) is a completely open source and community-driven systems monitoring and alerting toolkit originally built at SoundCloud, circa 2012. Interestingly, Prometheus joined the [Cloud Native Computing Foundation](https://cncf.io/) (CNCF) in 2016 as the second hosted-project, after [Kubernetes](http://kubernetes.io/).
 
-[![screen_shot_2019-04-15_at_11_04_54_pm](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_11_04_54_pm.png?w=620)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_11_04_54_pm.png)
+[Prometheus](https://prometheus.io/) 是一个完全开源的社区驱动的系统监控和报警工具集，最初是在2012年左右在SoundCloud开发的。有趣的是，Prometheus在2016年加入了[云原生计算基金会](https://cncf.io/) （CNCF），成为继[Kubernetes](http://kubernetes.io/)之后的第二个托管项目。
+
+[![screen_shot_2019-04-15_at_11_04_54_pm](13.png)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_11_04_54_pm.png)
 
 ### Grafana
 
-Grafana describes itself as the leading open source software for time series analytics. According to [Grafana Labs,](https://grafana.com/grafana) Grafana allows you to query, visualize, alert on, and understand your metrics no matter where they are stored. You can easily create, explore, and share visually-rich, data-driven dashboards. Grafana allows users to visually define alert rules for your most important metrics. Grafana will continuously evaluate rules and can send notifications.
+Grafana将自己描述为时间序列分析开源软件的领袖。根据[Grafana Labs](https://grafana.com/grafana)的说法，Grafana允许你查询、观测、提醒和理解指标，无论它们存储在哪里。你可以轻松地创建、探索和共享有丰富视图的数据驱动的仪表板。Grafana允许用户为最重要的指标定义可视化的警报规则。Grafana将持续评估规则并发送通知。
 
-According to [Istio](https://istio.io/docs/tasks/telemetry/using-istio-dashboard/#about-the-grafana-add-on), the Grafana add-on is a pre-configured instance of Grafana. The Grafana Docker base image has been modified to start with both a Prometheus data source and the Istio Dashboard installed. Below, we see two of the pre-configured dashboards, the Istio Mesh Dashboard and the Istio Performance Dashboard.
+[Istio](https://istio.io/docs/tasks/telemetry/using-istio-dashboard/#about-the-grafana-add-on)的Grafana插件是Grafana的一个预配置的实例。Grafana Docker基础映像已经修改为带有Prometheus数据源和安装好的Istio仪表板。下图展示了看到的两个预先配置的仪表板：Istio Mesh仪表板和Istio性能仪表板。
 
-[![screen_shot_2019-04-15_at_10_45_38_pm](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_10_45_38_pm.png?w=620)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_10_45_38_pm.png)
+[![screen_shot_2019-04-15_at_10_45_38_pm](14.png)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_10_45_38_pm.png)
 
-[![screen_shot_2019-04-15_at_10_46_03_pm](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_10_46_03_pm.png?w=620)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_10_46_03_pm.png)
+[![screen_shot_2019-04-15_at_10_46_03_pm](15.png)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_10_46_03_pm.png)
 
-## Pillar 3: Traces
+## 支柱 3: 追踪
 
 Moving from JSON over HTTP to gRPC did require a complete re-write of the tracing logic in the service code. In fact, I spent the majority of my time ensuring the correct headers were propagated from the Istio Ingress Gateway to the gRPC Gateway reverse proxy, to Service A in the gRPC context, and upstream to all the dependent, gRPC-based services. I am sure there are a number of optimization in my current code, regarding the correct handling of traces and how this information is propagated across the service call stack.
 
