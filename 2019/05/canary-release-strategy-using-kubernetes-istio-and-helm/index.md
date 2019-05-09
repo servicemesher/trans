@@ -1,8 +1,23 @@
-# 使用Kubernetes，Istio和Helm实现金丝雀发布
+---
+original: https://medium.com/microsoftazure/canary-release-strategy-using-kubernetes-istio-helm-fb49c0406f07
+author: Maninderjit (Mani) Bindra
+translator: https://github.com/shonge
+reviewer: [""]
+title: "使用Kubernetes，Istio和Helm实现金丝雀发布"
+description: "本文阐述了如何使用Helm和Istio实现手动金丝雀发布"
+categories: "译文"
+tags: ["istio"]
+originalPublishDate: 2019-04-11
+publishDate: 2019-05-09
+---
 
 ![](./0071hauBly1g262ptg24tj30i20c1t9p.jpg)
 
-[阅读原文](<https://medium.com/microsoftazure/canary-release-strategy-using-kubernetes-istio-helm-fb49c0406f07>)
+### 编者按
+
+本文阐述了如何使用Helm和Istio实现手动金丝雀发布
+
+
 
 在近期的项目上，我通过流水线实现了金丝雀/分阶段发布微服务应用。这些微服务被部署在Azure Kubernetes集群上（[AKS](https://azure.microsoft.com/en-us/services/kubernetes-service/)）。
 
