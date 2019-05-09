@@ -1,4 +1,4 @@
-请审校者在合并该 PR 前需要检查以下内容：
+请审校者在合并该 PR 前需要检查以下内容： 
 
 - [ ] Header 设置正确，包括文章的类型、tag、分类、作者、译者、摘要、reviewer 发布时间等信息
 - [ ] 关联 Issue 编号 https://github.com/servicemesher/trans/issues/${ISSUE_ID}
