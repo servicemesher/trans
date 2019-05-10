@@ -19,7 +19,7 @@ publishDate: 2019-05-09
 
 
 
-在近期的项目上，我通过流水线实现了金丝雀/分阶段发布微服务应用。这些微服务被部署在Azure Kubernetes集群上（[AKS](https://azure.microsoft.com/en-us/services/kubernetes-service/)）。
+我近期工作的项目目标是为微服务应用的金丝雀/分阶段发布制定一套流水线。而这些微服务被部署在Azure Kubernetes集群上（[AKS](https://azure.microsoft.com/en-us/services/kubernetes-service/)）。
 
 本文假设您熟悉[**Kubernetes**](https://kubernetes.io/)，[**Helm**](https://helm.sh/)和[**Istio流量管理**](https://istio.io/docs/concepts/traffic-management/)
 
