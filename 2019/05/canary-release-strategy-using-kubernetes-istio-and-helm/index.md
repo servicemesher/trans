@@ -5,7 +5,7 @@ translator: https://github.com/shonge
 reviewer: ["SataQiu"]
 title: "使用Kubernetes，Istio和Helm实现金丝雀发布"
 description: "本文阐述了如何使用Helm和Istio实现手动金丝雀发布"
-categories: "译文"
+categories: "translation"
 tags: ["istio"]
 originalPublishDate: 2019-04-11
 publishDate: 2019-05-09
