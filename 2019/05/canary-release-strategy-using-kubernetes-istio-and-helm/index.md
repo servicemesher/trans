@@ -1,5 +1,5 @@
 ---
-original: https://medium.com/microsoftazure/canary-release-strategy-using-kubernetes-istio-helm-fb49c0406f07
+original: "https://medium.com/microsoftazure/canary-release-strategy-using-kubernetes-istio-helm-fb49c0406f07"
 author: Maninderjit (Mani) Bindra
 translator: "shonge"
 reviewer: ["SataQiu"]
