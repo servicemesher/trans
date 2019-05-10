@@ -117,7 +117,7 @@ canaryDeployment:
     pullPolicy: IfNotPresent
 ```
 
-service部分包含了service名称。productionDeployment包含了副本数量、路由转发权重、容器镜像仓库名称、以及镜像tag。它跟canaryDeployment 有一点类似。上面的值表示当处于稳定状态时，100%的浏览被路由转发到现有生产版本Pods。而金丝雀版本则被设置为0副本，并且与生产版本使用相同镜像。当使用金丝雀发布时，金丝雀版本将被设置为使用新版本镜像。
+service部分包含了service名称。productionDeployment包含了副本数量、路由转发权重、容器镜像仓库名称、以及镜像tag。它跟canaryDeployment有一点类似。上面的值表示当处于稳定状态时，100%的流量被路由转发到现有生产版本Pod。而金丝雀版本则被设置为0副本，并且与生产版本使用相同镜像。当使用金丝雀发布时，金丝雀版本将被设置为使用新版本镜像。
 
 在这个案例中，容器镜像打tag策略是使用对应的build id，然后把它推送到镜像仓库。所以如果应用程序的新版本被触发构建，则下一个版本容器镜像tag为84（83+1）。
 
