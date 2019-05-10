@@ -125,7 +125,7 @@ service部分包含了service名称。productionDeployment包含了副本数量�
 
 ##### 生产版本以及金丝雀版本Deployment文件
 
-##### 生产版本deployment文件
+##### 生产版本Deployment文件
 
 ```yaml
 apiVersion: apps/v1beta2
