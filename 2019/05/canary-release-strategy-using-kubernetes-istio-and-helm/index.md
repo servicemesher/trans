@@ -361,7 +361,7 @@ helm upgrade  --install --namespace bookinfo-k8s-helm-istio-canary --values ./pr
 
 ### 在任一阶段测试应用
 
-在这个案例中，产品页面需要可以从集群外部访问，因此我们需要istio网关。从服务器外部访问istio网关，需要获取它的外部IP。
+在这个案例中，product page需要可以从集群外部访问，因此我们需要istio网关。从服务器外部访问istio网关，需要获取它的外部IP。
 
 ```shell
 kubectl get svc istio-ingressgateway  -n istio-system
