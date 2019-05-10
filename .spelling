@@ -103,6 +103,7 @@ Callouts
 camelCase
 canaried
 canarying
+canaryDeployment
 CAP_NET_ADMIN
 CAs
 CDNs
@@ -146,6 +147,8 @@ Devirtualization
 devops
 discuss.istio.io
 distro
+dockerfile
+Dockerfile 
 docker-compose's
 docker.io
 Duggirala
@@ -187,6 +190,7 @@ GCP-IAM
 GCP_OPTS
 gdb
 git
+Github
 GitHub
 GKE-IAM
 GKE-Istio
@@ -243,6 +247,7 @@ IPs
 iptables
 iptables
 IPv4
+istio
 Istio
 istio.io
 istio.io.
@@ -272,6 +277,7 @@ kubeconfig
 Kubelet
 kubelet
 Kubernetes
+kubernetes
 kubernetes.default
 L3-4
 L4-L6
@@ -361,6 +367,7 @@ prefetching
 preformatted
 prepends
 prober
+productionDeployment
 programmatically
 proto
 protobuf
@@ -504,6 +511,7 @@ v1beta1#MutatingWebhookConfiguration
 v2
 v2-mysql
 v3
+valuse
 ValueType
 vCPU
 versioned
