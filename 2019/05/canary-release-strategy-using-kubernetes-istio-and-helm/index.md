@@ -1,6 +1,6 @@
 ---
 original: "https://medium.com/microsoftazure/canary-release-strategy-using-kubernetes-istio-helm-fb49c0406f07"
-author: Maninderjit (Mani) Bindra
+author: "Maninderjit (Mani) Bindra"
 translator: "shonge"
 reviewer: ["SataQiu"]
 title: "使用Kubernetes，Istio和Helm实现金丝雀发布"
