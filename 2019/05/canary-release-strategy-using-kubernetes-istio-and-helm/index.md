@@ -373,7 +373,7 @@ kubectl get svc istio-ingressgateway  -n istio-system
 23.XX.YY.ZZ product-page-svc.bookinfo-k8s-helm-istio-canary.svc.cluster.local
 ```
 
-服务访问url http://product-page-svc.bookinfo-k8s-helm-istio-canary.svc.cluster.local/productpage?u=normal。
+新的服务能够通过该 URL 访问：http://product-page-svc.bookinfo-k8s-helm-istio-canary.svc.cluster.local/productpage?u=normal。
 
 在后续文章中，我们将介绍如何使用Azure Devops轻松创建多阶段流水线，手动判定以及回滚。
 
