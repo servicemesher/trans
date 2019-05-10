@@ -21,7 +21,7 @@ publishDate: 2019-05-09
 
 我近期工作的项目目标是为微服务应用的金丝雀/分阶段发布制定一套流水线。而这些微服务被部署在Azure Kubernetes集群上（[AKS](https://azure.microsoft.com/en-us/services/kubernetes-service/)）。
 
-本文假设您熟悉[**Kubernetes**](https://kubernetes.io/)，[**Helm**](https://helm.sh/)和[**Istio流量管理**](https://istio.io/docs/concepts/traffic-management/)
+本文假设您熟悉[**Kubernetes**](https://kubernetes.io/)，[**Helm**](https://helm.sh/)和[**Istio流量管理**](https://istio.io/docs/concepts/traffic-management/)。
 
 这篇文章描述了发布的基本要求，为这些要求选择的发布策略，以及每个阶段实现细节。
 
