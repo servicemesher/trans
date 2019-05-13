@@ -3,7 +3,7 @@ author: "Stela Udovicic"
 translator: "zhangsean"
 reviewer: ["haiker2011"]
 original: "https://medium.com/@ustela101/envoy-service-mesh-and-observability-best-practices-for-enterprises-6b72bbaa723c"
-title: "Envoy，服务网格和可观察性之企业最佳实践"
+title: "Envoy、服务网格和可观察性之企业最佳实践"
 summary: "通过对Envoy创始人Matt Klein的采访，Matt分享了他对企业开始使用微服务部署Envoy所遇到的挑战以及可观察性的看法和选择。"
 categories: "译文"
 tags: ["Microservices","Service Mesh","Istio","Envoy","Observability"]
