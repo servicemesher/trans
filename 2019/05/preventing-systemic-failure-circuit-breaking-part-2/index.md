@@ -1,12 +1,12 @@
 ---
 original: https://glasnostic.com/blog/preventing-systemic-failure-circuit-breaking-part-2
 author: Yu-Han Lin
-translator: https://github.com/GuangmingLuo
-reviewer: []
+translator: GuangmingLuo
+reviewer: [haiker2011]
 title: "防止系统故障:熔断-它是什么以及它是如何工作的(第2部分)"
-description: "本文介绍了开发人员和运维人员两种不同视角下的微服务典型应用场景，对比了熔断功能的三种不同实现：Hystrix, Service Mesh (Istio、linkerd) 和 Glasnostic"
-categories: "译文"
-tags: ["Circuit Breaking"]
+description: "本文介绍了开发人员和运维人员两种不同视角下的微服务典型应用场景，对比了熔断功能的三种不同实现：Hystrix, Service Mesh (Istio、Linkerd) 和 Glasnostic"
+categories: "translation"
+tags: ["Circuit Breaking","Hystrix", "Glasnostic", "Istio", "Linkerd"]
 originalPublishDate: 2019-03-19
 publishDate: 2019-05-12
 
@@ -15,7 +15,7 @@ publishDate: 2019-05-12
 
 ## 编者按
 
-本文是一篇来自Glasnostic官网的博客。作为介绍熔断系列文章的第二篇，本文通过介绍开发人员和运维人员两种不同视角下的微服务典型应用场景，引入进阶的熔断功能。进而分别介绍和对比了熔断功能的三种不同实现：Hystrix, Service Mesh (Istio、linkerd) 和 Glasnostic。
+本文是一篇来自Glasnostic官网的博客。作为介绍熔断系列文章的第二篇，本文通过介绍开发人员和运维人员两种不同视角下的微服务典型应用场景，引入进阶的熔断功能。进而分别介绍和对比了熔断功能的三种不同实现：Hystrix, Service Mesh (Istio、Linkerd) 和 Glasnostic。
 
 ## 前言
 
@@ -81,7 +81,7 @@ spec:
       maxEjectionPercent: 100
 ```
 
-**Figure 2**. *示例Istio断路器配置，可以直接通过kubectl命令执行。这种配置指定了基于连接池和故障(“outlierDetection”)参数的熔断。在连接端，超过10个打开的TCP连接、超过20个挂起的HTTP请求或每个连接超过3个挂起的请求都会触发断路器。在故障检测方面，任何两个连续错误在两秒内相继发生，都会导致目标主机从负载均衡池中弹出至少30秒。*
+**Figure 2**. *示例Istio断路器配置，可以直接通过kubectl命令执行。这种配置指定了基于连接池和故障('outlierDetection')参数的熔断。在连接端，超过10个打开的TCP连接、超过20个挂起的HTTP请求或每个连接超过3个挂起的请求都会触发断路器。在故障检测方面，任何两个连续错误在两秒内相继发生，都会导致目标主机从负载均衡池中弹出至少30秒。*
 
 ### Linkerd
 
