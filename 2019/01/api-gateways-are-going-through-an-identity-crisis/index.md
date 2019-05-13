@@ -2,11 +2,12 @@
 author: wikiios
 title: "API网关正在经历一次认证危机"
 translator: "saberuster"
-reviewers: ["rootsongjc"]
+reviewers: ["haiker2011"]
 description: "本文主要向读者介绍在FAAS和微服务架构之间的区别以及如何根据自身情况选择正确的架构方案"
 categories: "译文"
 tags: ["Service Mesh", "Istio", "Ingress"]
 date: 2018-12-17
+publishDate: 2019-5-13
 ---
 
 
