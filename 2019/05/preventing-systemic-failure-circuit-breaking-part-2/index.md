@@ -8,7 +8,7 @@ description: "本文介绍了开发人员和运维人员两种不同视角下的
 categories: "translation"
 tags: ["Circuit Breaking","Hystrix", "Glasnostic", "Istio", "Linkerd"]
 originalPublishDate: 2019-03-19
-publishDate: 2019-05-12
+publishDate: 2019-05-13
 
 
 ---
@@ -81,7 +81,7 @@ spec:
       maxEjectionPercent: 100
 ```
 
-**Figure 2**. *示例Istio断路器配置，可以直接通过kubectl命令执行。这种配置指定了基于连接池和故障('outlierDetection')参数的熔断。在连接端，超过10个打开的TCP连接、超过20个挂起的HTTP请求或每个连接超过3个挂起的请求都会触发断路器。在故障检测方面，任何两个连续错误在两秒内相继发生，都会导致目标主机从负载均衡池中弹出至少30秒。*
+**Figure 2**. *示例Istio断路器配置，可以直接通过kubectl命令执行。这种配置指定了基于连接池和故障('outlier detection')参数的熔断。在连接端，超过10个打开的TCP连接、超过20个挂起的HTTP请求或每个连接超过3个挂起的请求都会触发断路器。在故障检测方面，任何两个连续错误在两秒内相继发生，都会导致目标主机从负载均衡池中弹出至少30秒。*
 
 ### Linkerd
 
