@@ -102,23 +102,14 @@ git clone \
 下面是服务A具体的代码变化：
 
 - 导入[pb-greeting](https://github.com/garystafford/pb-greeting) protobuf 包；
-
 - 本地 Greeting 结构体被 `pb.Greeting` 结构体替代；
-
 - 所有的服务都基于 `50051`端口；
-
-  HTTP 服务器和所有的 API 资源处理器函数被移除；
-
+- HTTP 服务器和所有的 API 资源处理器函数被移除；
 - 用于做Jeager的分布式追踪的请求头信息从HTTP的请求对象中移动到了gPRC context对象中的metadata里；
-
 - 服务A作为gRPC服务端，被gRPC网关反向代理(客户端)通过Greeting函数调用；
-
 - 主要的 `PingHandler` 函数，返回服务的 Greeting，被 [pb-greeting](https://github.com/garystafford/pb-greeting) protobuf 包的 `Greeting函数替代；
-
 - 服务A作为gRPC客户端，使用CallGrpcService` 函数调用服务B和服务C；
-
 - CORS 被从Istio中卸载；
-
 - Logging 方法没有改变；
 
 基于gRPC的[服务 A](https://github.com/garystafford/k8s-istio-observe-backend/blob/grpc/services/service-a/main.go) 的源码如下([*要点*](https://gist.github.com/garystafford/cb73d9037d2e492c3031a5fd3c8c3a5f)):
