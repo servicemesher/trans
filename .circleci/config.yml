@@ -1,0 +1,14 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: shidaqiu/servicemesher-trans-circleci:1.0
+
+    working_directory: ~/site
+
+    steps:
+      - checkout
+
+      - run:
+          name: Running Linters
+          command: scripts/lint_site.sh

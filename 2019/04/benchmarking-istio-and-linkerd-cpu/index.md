@@ -1,17 +1,20 @@
 ---
-original: https://medium.com/@michael_87395/benchmarking-istio-linkerd-cpu-c36287e32781
 author: "Michael Kipper"
-translator: "malphi"
-reviewer: ["rootsongjc"]
+translator: "马若飞"
+draft: false
+date: 2019-05-06T21:50:05+08:00
+reviewer: ["宋净超"]
+banner: "/img/blog/banners/006tNbRwly1fy1zsehjgtj313z0u04qs.jpg"
+authorlink: "https://medium.com/@michael_87395/"
+translatorlink: "https://github.com/malphi"
+originallink: "https://medium.com/@michael_87395/benchmarking-istio-linkerd-cpu-c36287e32781"
+reviewerlink: ["https://jimmysong.io"]
 title: "Istio和Linkerd的CPU基准测试"
-description: "本文对Istio和Linkerd的CPU使用情况做了基准测试和比较"
-categories: "translation"
+summary: "本文对Istio和Linkerd的CPU使用情况做了基准测试和比较。"
+categories: ["translation"]
 tags: ["istio","linkerd"]
-originalPublishDate: 2019-04-23
-publishDate: 2019-04-28
+keywords: ["service mesh","istio","linkerd"]
 ---
-
-# Istio和Linkerd的CPU基准测试
 
 [编者按]
 
@@ -175,11 +178,11 @@ IRS的核心是一个worker，它充当服务网格中的一个节点。可以�
 
 首先来看看控制平面的CPU使用情况。
 
-![img](1.png)
+![img](https://raw.githubusercontent.com/servicemesher/website/master/content/blog/benchmarking-istio-and-linkerd-cpu/1.png)
 
 Linkerd 控制平面： ~22 mcores
 
-![img](2.png)
+![img](https://raw.githubusercontent.com/servicemesher/website/master/content/blog/benchmarking-istio-and-linkerd-cpu/2.png)
 
 Istio控制平面：~750 mcores
 
@@ -189,13 +192,13 @@ Istio控制平面比Linkerd多使用了大约**35倍的CPU**。不可否认，�
 
 接下来，我们看一下sidecar代理的使用情况。这应该与请求速率成线性关系，但是每个sidecar都有一些开销，这会影响曲线的形状。
 
-![img](3.png)
+![img](https://raw.githubusercontent.com/servicemesher/website/master/content/blog/benchmarking-istio-and-linkerd-cpu/3.png)
 
 Linkerd：~100 mcore 为irs-client，~50 mcore 为irs-client-loadgen 
 
 这些结果是有道理的，因为客户端代理接收的流量是loadgen代理的两倍：对于来自loadgen的每个出站请求，客户端接收一个入站请求和一个出站请求。
 
-![img](4.png)
+![img](https://raw.githubusercontent.com/servicemesher/website/master/content/blog/benchmarking-istio-and-linkerd-cpu/4.png)
 
 Istio/Envoy：~155 mcore 为irs-client, ~75 mcore 为irs-client-loadgen
 
@@ -205,11 +208,11 @@ Istio的sidecar我们看到了同样的结果。
 
 我们看到在服务端也是一样的情况：
 
-![img](5.png)
+![img](https://raw.githubusercontent.com/servicemesher/website/master/content/blog/benchmarking-istio-and-linkerd-cpu/5.png)
 
 Linkerd：~50 mcores 为 irs-server
 
-![img](6.png)
+![img](https://raw.githubusercontent.com/servicemesher/website/master/content/blog/benchmarking-istio-and-linkerd-cpu/6.png)
 
 Istio/Envoy：~80 mcores 为 irs-server
 
