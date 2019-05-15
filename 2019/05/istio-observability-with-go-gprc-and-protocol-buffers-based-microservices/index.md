@@ -17,7 +17,7 @@ publishDate: 2019-05-07
 
 > 本文演示了如何基于Go语言、gRPC和Protobuf技术构建一个微服务，并着重介绍了实现Istio可观测功能的三大支柱：日志、度量和追踪，以及与之对应的工具Logrus、Prometheus、Grafana、Jeager等。通过文章内容和示例代码，读者会对如何构建gRPC技术栈的微服务和使用Istio可视化工具观测服务的实现方案有一个全面的认识。
 
-在过去的两篇文章中（[具有Istio服务网格的基于Kubernetes的微服务可视化](https://programmaticponderings.com/2019/03/10/kubernetes-based-microservice-observability-with-istio-service-mesh-part-1/) 和 [具有Istio服务网格的AKS可视化](https://programmaticponderings.com/2019/03/31/azure-kubernetes-service-aks-observability-with-istio/)），我们探索了包含在Istio服务网格中的可视化工具，包括用于指标收集、监控和报警的[Prometheus](https://prometheus.io/) 和 [Grafana](https://grafana.com/)，用做分布式追踪的[Jaeger](https://www.jaegertracing.io/)，以及基于Istio服务网格的微服务可视化和监控工具[Kiali](https://www.kiali.io/)。和云平台原生的监控、日志服务相比（例如GCP的 [Stackdriver](https://cloud.google.com/monitoring/)，AWS上的 [CloudWatch](https://aws.amazon.com/cloudwatch/)，Azure上的 [Azure Monitor](https://docs.microsoft.com/en-us/azure/azure-monitor/overview)），我们有针对现代化的、分布式的云应用的全面的可视化解决方案。
+在过去的两篇文章中（[具有Istio服务网格的基于Kubernetes的微服务可视化](https://programmaticponderings.com/2019/03/10/kubernetes-based-microservice-observability-with-istio-service-mesh-part-1/) 和 [具有Istio服务网格的AKS可视化](https://programmaticponderings.com/2019/03/31/azure-kubernetes-service-aks-observability-with-istio/)），我们探索了包含在Istio服务网格中的可视化工具，包括用于指标收集、监控和报警的[Prometheus](https://prometheus.io/) 和 [Grafana](https://grafana.com/)，用做分布式追踪的[Jaeger](https://www.jaegertracing.io/)，以及基于Istio服务网格的微服务可视化和监控工具[Kiali](https://www.kiali.io/)和云平台原生的监控、日志服务相比（例如GCP的 [Stackdriver](https://cloud.google.com/monitoring/)，AWS上的 [CloudWatch](https://aws.amazon.com/cloudwatch/)，Azure上的 [Azure Monitor](https://docs.microsoft.com/en-us/azure/azure-monitor/overview)），我们有针对现代化的、分布式的云应用的全面的可视化解决方案。
 
 在这篇文章中，我们将考察使用Istio可视化工具来监控基于Go语言的微服务，它们使用 [Protocol Buffers](https://developers.google.com/protocol-buffers/)以及[gRPC](https://grpc.io/)和[HTTP/2](https://en.wikipedia.org/wiki/HTTP/2)作为客户端-服务端通信，这与传统的基于REST JSON和HTTP进行通信是不同的。我们将看到Kubernetes、Istio、Envoy和可视化工具如何与gRPC无缝地工作，就像在[Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/)上通过HTTP处理JSON一样。
 
@@ -27,15 +27,15 @@ publishDate: 2019-05-07
 
 ### ![Image result for grpc logo](2-1.png)gRPC
 
-根据[gRPC项目](https://grpc.io/)， gRPC是[CNCF](https://www.cncf.io/)的孵化项目，一个现代化的、高性能、开源和通用的[RPC](https://en.wikipedia.org/wiki/remote_procedure re_call)框架，可以在任何地方运行。它使客户端和服务端应用能够透明地通信，并更加容易的构建连接系统。Google是gRPC最初的开发者，多年来一直使用gRPC中的底层技术和概念。当前的实现用于几个谷歌的云产品和对外的API。许多其他组织也在使用它，比如Square、Netflix、CoreOS、Docker、CockroachDB、Cisco、Juniper Networks等。
+根据[gRPC项目](https://grpc.io/)介绍， gRPC是[CNCF](https://www.cncf.io/)的孵化项目，一个现代化的、高性能、开源和通用的[RPC](https://en.wikipedia.org/wiki/remote_procedurere_call)框架，可以在任何地方运行。它使客户端和服务端应用能够透明地通信，并更加容易的构建连接系统。Google是gRPC最初的开发者，多年来一直使用gRPC中的底层技术和概念。当前的实现用于几个谷歌的云产品和对外的API。许多其他组织也在使用它，比如Square、Netflix、CoreOS、Docker、CockroachDB、Cisco、Juniper Networks等。
 
 ### ![Image result for google developer](3.png)Protocol Buffers
 
-默认情况下gRPC使用Protocol Buffers。根据[Google官方的介绍](https://developers.google.com/protocol-buffers/)，Protocol Buffers是一种与语言和平台无关的、高效的、可扩展的自动化机制，用于序列化结构化的数据，以便在通信协议、数据存储等方面使用。Protocol Buffers比XML小3到10倍，并且快20到100倍。使用生成数据访问类编译的`.proto`源文件很容易以编程方式使用。
+默认情况下gRPC使用Protocol Buffers。根据[Google官方的介绍](https://developers.google.com/protocol-buffers/)，Protocol Buffers是一种与语言和平台无关的、高效的、可扩展的自动序列化结构化的数据的机制，以便在通信协议、数据存储等方面使用。Protocol Buffers比XML小3到10倍，并且快20到100倍。使用生成数据访问类编译的`.proto`源文件很容易以编程方式使用。
 
 > Protocol Buffers比XML小3到10倍，并且快20到100倍。
 
-Protocol buffers 目前支持生成Java，Python，Objective-C，C++，Dart，Go，Ruby和C#代码。 本文我们编程成Go语言。你可以从Google的 [开发者页面](https://developers.google.com/protocol-buffers/docs/encoding)了解更多Protobuf二进制格式的信息。
+Protocol buffers 目前支持生成Java，Python，Objective-C，C++，Dart，Go，Ruby和C#代码。 本文我们使用Go语言编程。你可以从Google的 [开发者页面](https://developers.google.com/protocol-buffers/docs/encoding)了解更多Protobuf二进制格式的信息。
 
 ### ![Image result for envoy proxy](4-1.png)Envoy Proxy
 
@@ -87,7 +87,7 @@ git clone \
   https://github.com/garystafford/k8s-istio-observe-backend.git
 ```
 
-基于angular的web客户端源代码在[k8s-istio-observe-frontend](https://github.com/garyst/k8s -istio-observe-frontend)代码库的"grpc"分支。.proto源文件和使用Protocol Buffers编译器生成的代码位于新的[pb-greeting](https://github.com/garystford/pb -greeting)项目代码库中。在本文的演示中，你不需要克隆这些项目中的任何一个。
+基于angular的web客户端源代码在[k8s-istio-observe-frontend](https://github.com/garyst/k8s-istio-observe-frontend)代码库的"grpc"分支。.proto源文件和使用Protocol Buffers编译器生成的代码位于新的[pb-greeting](https://github.com/garystford/pb-greeting)项目代码库中。在本文的演示中，你不需要克隆这些项目中的任何一个。
 
 所有的服务、UI和反向代理的的Docker镜像都在[Docker Hub](https://hub.docker.com/search?q="garystafford&type=image&sort=updated_at&order=desc)。
 
@@ -326,7 +326,7 @@ Angular UI向“/api/v1/greeting”资源发出HTTP GET请求，该资源被转�
 
 - 导入 [pb-greeting](https://github.com/garystafford/pb-greeting) protobuf 包；
 - 代理使用 `80`端口；
-- 用于与Jaeger一起进行分布式跟踪的请求头从传入的HTTP请求中收集信息，并传递给gRPC上下文中的服务A；
+- 用于与Jaeger一起进行分布式追踪的请求头从传入的HTTP请求中收集信息，并传递给gRPC上下文中的服务A；
 - 代理被编写为gRPC客户端，调用服务A；
 - 日志大部分没有改变；
 
@@ -531,8 +531,6 @@ spec:
 
 ### Prometheus
 
-[Prometheus](https://prometheus.io/) is a completely open source and community-driven systems monitoring and alerting toolkit originally built at SoundCloud, circa 2012. Interestingly, Prometheus joined the [Cloud Native Computing Foundation](https://cncf.io/) (CNCF) in 2016 as the second hosted-project, after [Kubernetes](http://kubernetes.io/).
-
 [Prometheus](https://prometheus.io/) 是一个完全开源的社区驱动的系统监控和报警工具集，最初是在2012年左右在SoundCloud开发的。有趣的是，Prometheus在2016年加入了[云原生计算基金会](https://cncf.io/) （CNCF），成为继[Kubernetes](http://kubernetes.io/)之后的第二个托管项目。
 
 [![screen_shot_2019-04-15_at_11_04_54_pm](13.png)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_11_04_54_pm.png)
@@ -541,7 +539,7 @@ spec:
 
 Grafana将自己描述为时间序列分析开源软件的领袖。根据[Grafana Labs](https://grafana.com/grafana)的说法，Grafana允许你查询、观测、提醒和理解指标，无论它们存储在哪里。你可以轻松地创建、探索和共享有丰富视图的数据驱动的仪表板。Grafana允许用户为最重要的指标定义可视化的警报规则。Grafana将持续评估规则并发送通知。
 
-[Istio](https://istio.io/docs/tasks/telemetry/using-istio-dashboard/#about-the-grafana-add-on)的Grafana插件是Grafana的一个预配置的实例。Grafana Docker基础映像已经修改为带有Prometheus数据源和安装好的Istio仪表板。下图展示了看到的两个预先配置的仪表板：Istio Mesh仪表板和Istio性能仪表板。
+[Istio](https://istio.io/docs/tasks/telemetry/using-istio-dashboard/#about-the-grafana-add-on)的Grafana插件是Grafana的一个预配置的实例。Grafana Docker基础镜像已经修改为带有Prometheus数据源和安装好的Istio仪表板。下图展示了看到的两个预先配置的仪表板：Istio Mesh仪表板和Istio性能仪表板。
 
 [![screen_shot_2019-04-15_at_10_45_38_pm](14.png)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-15_at_10_45_38_pm.png)
 
@@ -549,7 +547,7 @@ Grafana将自己描述为时间序列分析开源软件的领袖。根据[Grafan
 
 ## 支柱 3: 追踪
 
-从HTTP的JSON迁移到gRPC确实需要重写服务代码中的跟踪逻辑。事实上，我花了大部分时间来确保报头的正确性，它从Istio Ingress网关传播到gRPC网关反向代理、再到gRPC上下文中的服务A，以及上游到所有依赖的、基于gRPC的服务。我确信在我当前的代码中有许多关于正确处理跟踪以及如何在服务调用堆栈中传播这些信息的优化。
+从HTTP的JSON迁移到gRPC确实需要重写服务代码中的追踪逻辑。事实上，我花了大部分时间来确保报头的正确性，它从Istio Ingress网关传播到gRPC网关反向代理、再到gRPC上下文中的服务A，以及上游到所有依赖的、基于gRPC的服务。我确信在我当前的代码中有许多关于正确处理追踪以及如何在服务调用堆栈中传播这些信息的优化。
 
 ### Jaeger
 
