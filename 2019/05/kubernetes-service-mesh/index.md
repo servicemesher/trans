@@ -18,7 +18,7 @@ publishDate: 2018-01-28
 
 [ALEN KOMLJEN ](https://akomljen.com/author/alen/) 2018年1月28日，阅读时间4分钟
 
-几个月前我同事问起我对于如何集成[Linkerd](https://linkerd.io/)到我们新的运行在[Kubernetes](https://akomljen.com/tag/kubernetes/)应用里面有什么想法。我的第一反应是，嘿，难道Kubernetes服务和[ingress]还不够么？你能够基于它们做很多事情了。再考虑服务网格的话似乎有点过度设计。通常你有一些API只对内部网络开放，然而对于现在流行的应用来说，这并不够。API通常暴露在互联网上并且也有非常大的流量。你需要在流量上有更多的控制。甚至你还需要做API版本化，做金丝雀部署，观察并记录每一个请求。这就引入了服务网格。无论你用[Linkerd](https://linkerd.io/)或是[Istio](https://istio.io/)，原理上都是一样的。
+几个月前我同事问起我对于如何集成[Linkerd](https://linkerd.io/)到我们新的运行在[Kubernetes](https://akomljen.com/tag/kubernetes/)应用里面有什么想法。我的第一反应是，嘿，难道Kubernetes服务和[ingress](https://akomljen.com/tag/ingress/)还不够么？你能够基于它们做很多事情了。再考虑服务网格的话似乎有点过度设计。通常你有一些API只对内部网络开放，然而对于现在流行的应用来说，这并不够。API通常暴露在互联网上并且也有非常大的流量。你需要在流量上有更多的控制。甚至你还需要做API版本化，做金丝雀部署，观察并记录每一个请求。这就引入了服务网格。无论你用[Linkerd](https://linkerd.io/)或是[Istio](https://istio.io/)，原理上都是一样的。
 
 ## 为什么要用服务网格？
 
