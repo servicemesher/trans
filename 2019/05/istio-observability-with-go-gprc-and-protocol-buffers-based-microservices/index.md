@@ -65,7 +65,7 @@ Protocol buffers 目前支持生成Java，Python，Objective-C，C++，Dart，Go
 
 [![grpc_gateway.png](8.png)](https://github.com/grpc-ecosystem/grpc-gateway)
 
-*图像来源： https://github.com/grpc-ecosystem/grpc-gateway*
+*图像来源： <https://github.com/grpc-ecosystem/grpc-gateway>*
 
 在上面的平台架构图中添加了反向代理，替换了API边缘的服务A。代理位于基于Angular的Web UI和服务A之间。此外，服务之间的通信方式是通过gRPC上的Protobuf，而不是HTTP上的JSON。Envoy代理（通过Istio）的使用没有改变，基于MongoDB Atlas的数据库和基于CloudAMQP RabbitMQ的队列也没有改变，它们仍然位于Kubernetes集群的外部。
 
@@ -105,7 +105,7 @@ git clone \
 - 本地 Greeting 结构体被 `pb.Greeting` 结构体替代；
 - 所有的服务都基于 `50051`端口；
 - HTTP 服务器和所有的 API 资源处理器函数被移除；
-- 用于做Jeager的分布式追踪的请求头信息从HTTP的请求对象中移动到了gPRC context对象中的metadata里；
+- 用于做Jeager的分布式追踪的请求头信息从HTTP的请求对象中移动到了gRPC context对象中的metadata里；
 - 服务A作为gRPC服务端，被gRPC网关反向代理(客户端)通过Greeting函数调用；
 - 主要的 `PingHandler` 函数，返回服务的 Greeting，被 [pb-greeting](https://github.com/garystafford/pb-greeting) protobuf 包的 `Greeting函数替代；
 - 服务A作为gRPC客户端，使用CallGrpcService` 函数调用服务B和服务C；
@@ -499,7 +499,7 @@ spec:
 3. 在GCP或Azure上创建可管理的GKE或AKS；
 4. 使用Helm配置和部署Istio到Kubernetes集群；
 5. 为平台暴露出去的资源创建DNS记录；
-6. 在Kubernetes集群上部署基于Go的微服务、gPRC网关反向代理、Angular UI和相关的资源；
+6. 在Kubernetes集群上部署基于Go的微服务、gRPC网关反向代理、Angular UI和相关的资源；
 7. 测试和排查平台部署的问题；
 8. 观察结果。
 
