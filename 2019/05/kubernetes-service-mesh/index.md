@@ -11,7 +11,7 @@ originalPublishDate: 2018-01-28
 publishDate: 2018-01-28
 ---
 
-# 基于Kubernetes的服务网格
+## 基于Kubernetes的服务网格
 
 [编者按]
 
@@ -21,7 +21,7 @@ publishDate: 2018-01-28
 
 几个月前我同事问起我对于如何集成[Linkerd](https://linkerd.io/)到我们新的运行在[Kubernetes](https://akomljen.com/tag/kubernetes/)应用里面有什么想法。我的第一反应是，嘿，难道Kubernetes服务和[ingress](https://akomljen.com/tag/ingress/)还不够么？你能够基于它们做很多事情了。再考虑服务网格的话似乎有点过度设计。通常你有一些API只对内部网络开放，然而对于现在流行的应用来说，这并不够。API通常暴露在互联网上并且也有非常大的流量。你需要在流量上有更多的控制。甚至你还需要做API版本化，做金丝雀部署，观察并记录每一个请求。这就引入了服务网格。无论你用[Linkerd](https://linkerd.io/)或是[Istio](https://istio.io/)，原理上都是一样的。
 
-## 为什么要用服务网格？
+### 为什么要用服务网格？
 
 服务网格并不是和Kubernetes一起出现。然而，因为有Kubernetes，服务网格更容易被引入到你的环境中。有两个逻辑组件组成了服务网格。我们已经有了pod用于承载各个容器。Sidecar是另一个绝好的例子用于扩展和加强pod里面的主要容器。在服务网格语境里，sidecar是服务代理或者数据平面。
 
@@ -43,7 +43,7 @@ publishDate: 2018-01-28
 
 所以，为什么要用服务网格？答案很简单，你可以做上面的任何事情并且不需要修改代码。它能够节省时间与金钱。不仅如此，更重要的是，你不能跳过测试，因为它对于初学者太复杂。甚至你可以通过[Istio故障注入](https://istio.io/docs/concepts/traffic-management/#fault-injection)模拟不同的场景，来测试系统对于失败的反应。
 
-## Linkerd2与Istio
+### Linkerd2与Istio
 
 在一开始，我提到过两个在Kubernetes上创建服务网格的著名的解决方案。未来也许还会有其它更多的解决方案。每一个产品都试图用自己的方式解决问题，相互之间肯定会有重复的地方。
 
@@ -65,6 +65,6 @@ Linkerd的[入门向导](https://linkerd.io/2/getting-started/)非常不错，�
 
 这两个产品都是开源的。无论哪一个服务网格方式适合你，它们两个都很容易上手实验。不超过5分钟就可以把它跑起来。我鼓励你都去试一试然后再做决定。目前阶段Istio实现的功能比Linkerd2多了很多，并且也是一个稳定版本。
 
-## 总结
+### 总结
 
 我希望这篇文章很好的介绍了服务网格。这篇文章并不是Linkerd2和Istio之间的比较。我列举了一些功能点，这样你可以了解一下服务网格给Kubernetes带来了什么。请继续关注我们的后续文章。
