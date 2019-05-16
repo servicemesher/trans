@@ -1,14 +1,26 @@
 version: 2
 jobs:
-  build:
+  markdown-spell-check:
     docker:
-      - image: shidaqiu/servicemesher-trans-circleci:1.0
-
+    - image: shidaqiu/servicemesher-trans-circleci:1.0
     working_directory: ~/site
-
     steps:
-      - checkout
-
-      - run:
-          name: Running Linters
-          command: scripts/lint_site.sh
+    - checkout
+    - run:
+        name: Running markdown spell check
+        command: scripts/mdspell-check.sh
+  markdown-style-check:
+    docker:
+    - image: shidaqiu/servicemesher-trans-circleci:1.0
+    working_directory: ~/site
+    steps:
+    - checkout
+    - run:
+        name: Running markdown style check
+        command: scripts/mdl-check.sh
+workflows:
+  version: 2
+  workflow:
+    jobs:
+    - markdown-spell-check
+    - markdown-style-check

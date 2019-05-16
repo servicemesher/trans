@@ -4,13 +4,11 @@ author: Yu-Han Lin
 translator: GuangmingLuo
 reviewer: [haiker2011]
 title: "防止系统故障:熔断-它是什么以及它是如何工作的(第2部分)"
-description: "本文介绍了开发人员和运维人员两种不同视角下的微服务典型应用场景，对比了熔断功能的三种不同实现：Hystrix, Service Mesh (Istio、Linkerd) 和 Glasnostic"
+description: "本文介绍了开发人员和运维人员两种不同视角下的微服务典型应用场景，对比了熔断功能的三种不同实现：Hystrix, Service Mesh (Istio、Linkerd) 和 Glasnostic。"
 categories: "translation"
 tags: ["Circuit Breaking","Hystrix", "Glasnostic", "Istio", "Linkerd"]
 originalPublishDate: 2019-03-19
 publishDate: 2019-05-13
-
-
 ---
 
 ## 编者按
@@ -47,7 +45,7 @@ publishDate: 2019-05-13
 
 Hystrix是一个Java库，开发人员可以使用它用熔断逻辑封装服务调用。它基于阈值，可以立即判定调用失败并执行回滚逻辑，具体参考[第一部分](https://glasnostic.com/blog/preventing-systemic-failure-circuit-breaking-part-1#figure-1)。除了提供超时和并发限制之外，它还可以向监视工具发布度量metrics。最后，当与[Archaius](https://github.com/Netflix/archaius)库一起使用时，它还可以支持动态配置更改。
 
-![](hystrix.jpg)
+![](hystrix.png)
 
 **Figure 1**. *Hystrix* [dashboard](https://github.com/Netflix-Skunkworks/hystrix-dashboard) *显示了请求量、各种交互指标和中断状态。圆圈表示请求量，火花线表示过去2分钟内的呼叫量的变化。*
 
