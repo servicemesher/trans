@@ -19,7 +19,7 @@ publishDate: 2019-05-07
 
 在过去的两篇文章中（[具有Istio服务网格的基于Kubernetes的微服务可视化](https://programmaticponderings.com/2019/03/10/kubernetes-based-microservice-observability-with-istio-service-mesh-part-1/) 和 [具有Istio服务网格的AKS可视化](https://programmaticponderings.com/2019/03/31/azure-kubernetes-service-aks-observability-with-istio/)），我们探索了包含在Istio服务网格中的可视化工具，包括用于指标收集、监控和报警的[Prometheus](https://prometheus.io/) 和 [Grafana](https://grafana.com/)，用做分布式追踪的[Jaeger](https://www.jaegertracing.io/)，以及基于Istio服务网格的微服务可视化和监控工具[Kiali](https://www.kiali.io/)和云平台原生的监控、日志服务相比（例如GCP的 [Stackdriver](https://cloud.google.com/monitoring/)，AWS上的 [CloudWatch](https://aws.amazon.com/cloudwatch/)，Azure上的 [Azure Monitor](https://docs.microsoft.com/en-us/azure/azure-monitor/overview)），我们有针对现代化的、分布式的云应用的全面的可视化解决方案。
 
-在这篇文章中，我们将考察使用Istio可视化工具来监控基于Go语言的微服务，它们使用 [Protocol Buffers](https://developers.google.com/protocol-buffers/)以及[gRPC](https://grpc.io/)和[HTTP/2](https://en.wikipedia.org/wiki/HTTP/2)作为客户端-服务端通信，这与传统的基于REST JSON和HTTP进行通信是不同的。我们将看到Kubernetes、Istio、Envoy和可视化工具如何与gRPC无缝地工作，就像在[Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/)上通过HTTP处理JSON一样。
+在这篇文章中，我们将考察使用Istio可视化工具来监控基于Go语言的微服务，它们使用 [Protocol Buffers](https://developers.google.com/protocol-buffers/)、[gRPC](https://grpc.io/)和[HTTP/2](https://en.wikipedia.org/wiki/HTTP/2)作为客户端-服务端通信，这与传统的基于REST JSON和HTTP进行通信是不同的。我们将看到Kubernetes、Istio、Envoy和可视化工具如何与gRPC无缝地工作，就像在[Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/)上通过HTTP处理JSON一样。
 
 [![screen_shot_2019-04-18_at_6_03_38_pm](1.png)](https://programmaticponderings.files.wordpress.com/2019/04/screen_shot_2019-04-18_at_6_03_38_pm.png)
 
@@ -494,14 +494,14 @@ spec:
 
 要将微服务平台部署到GKE，请遵循本文第一部分的详细说明，或[基于Kubernetes的微服务可观察性与Istio服务网格:第1部分](https://programmaticponderings.com/2019/03/10/kubernetes-based-microservice-observability-with-istio-service-mesh-part-1/)， 或针对AKS的 [Azure Kubernetes服务(AKS)可观察性与Istio服务网格](https://programmaticponderings.com/2019/03/31/azure-kubernetes-service-aks-observability-with-istio/)。
 
-1. 创建额外的MongoDB Atlas 数据库和CloudAMQP RabbitMQ 集群；
-2. 为你的环境修改Kubernetes资源文件和bash脚本；
-3. 在GCP或Azure上创建可管理的GKE或AKS；
-4. 使用Helm配置和部署Istio到Kubernetes集群；
-5. 为平台暴露出去的资源创建DNS记录；
-6. 在Kubernetes集群上部署基于Go的微服务、gRPC网关反向代理、Angular UI和相关的资源；
-7. 测试和排查平台部署的问题；
-8. 观察结果。
+- 创建额外的MongoDB Atlas 数据库和CloudAMQP RabbitMQ 集群；
+- 为你的环境修改Kubernetes资源文件和bash脚本；
+- 在GCP或Azure上创建可管理的GKE或AKS；
+- 使用Helm配置和部署Istio到Kubernetes集群；
+- 为平台暴露出去的资源创建DNS记录；
+- 在Kubernetes集群上部署基于Go的微服务、gRPC网关反向代理、Angular UI和相关的资源；
+- 测试和排查平台部署的问题；
+- 观察结果。
 
 # 三大支柱
 
