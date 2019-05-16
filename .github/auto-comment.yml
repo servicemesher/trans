@@ -5,7 +5,9 @@ issueOpened: >
   
   :laughing:
 pullRequestOpened: >
-  Thank your for raising your pull request.
-  We will review it as soon as possible.
+  Thank you for raising the pull request. We will review it as soon as possible.
   
+  To ensure document quality, we have enabled the CI test, which currently includes spell and format checks.
+  If your pull request fails to pass the spell check, but you are sure that the word(s) is/are correct, feel free to add the word(s) into our glossary [.spelling](https://github.com/servicemesher/trans/blob/master/.spelling).
+
   :laughing:

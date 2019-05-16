@@ -1,13 +1,9 @@
 #!/bin/bash
 
-FAILED=0
-
 echo -ne "mdspell "
 mdspell --version
-echo -ne "mdl "
-mdl --version
 
-# This performs spell checking and style checking over changed markdown files
+# This performs markdown spell check over changed markdown files
 check_pull_request_content() {
 
 	# only check pull request, skip others
@@ -29,27 +25,9 @@ check_pull_request_content() {
 	echo ${CHANGED_MARKDOWN_FILES[@]}
 
 	if [[ "${#CHANGED_MARKDOWN_FILES[@]}" != "0" ]]; then
-		echo
-		echo "Check spell (optional)..."
-		echo
 		mdspell --en-us --ignore-acronyms --ignore-numbers --no-suggestions --report ${CHANGED_MARKDOWN_FILES[@]}
 		if [[ "$?" != "0" ]]; then
-			echo
 			echo "[WARNING]: Spell check failed. Feel free to add the term(s) into our glossary file '.spelling'."
-			echo
-			# set spell check as a weak check for now
-			# FAILED=1
-		fi
-
-		echo
-		echo "Check markdown style..."
-		echo
-		mdl --ignore-front-matter --style mdl_style.rb ${CHANGED_MARKDOWN_FILES[@]}
-		if [[ "$?" != "0" ]]; then
-			echo
-			echo "[ERROR]: Markdown style check failed."
-			echo
-			FAILED=1
 		fi
 	else
 		echo "No changed markdown files to check."
@@ -57,10 +35,3 @@ check_pull_request_content() {
 }
 
 check_pull_request_content
-
-if [[ $FAILED -eq 1 ]]; then
-	echo "LINTING FAILED"
-	exit 1
-else
-	echo "LINTING SUCCEEDED"
-fi

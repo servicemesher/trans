@@ -75,6 +75,7 @@ Aporeto
 AppOptics
 appswitch
 AppSwitch
+Archaius
 archive.istio.io
 archive.istio.io.
 args.yaml
@@ -87,6 +88,7 @@ autoscaling
 az
 backend
 backends
+backpressure
 base64
 BigQuery
 bitpipe
@@ -191,6 +193,7 @@ GitHub
 GKE-IAM
 GKE-Istio
 GKE-Workloads
+Glasnostic
 GlueCon
 Gmail
 golang
@@ -269,6 +272,7 @@ Kuat
 Kube
 Kubecon
 kubeconfig
+kubectl
 Kubelet
 kubelet
 Kubernetes
@@ -279,6 +283,8 @@ learnings
 LibreSSL
 lifecycle
 LightStep
+Linkerd
+Linkerd2
 linter
 linters
 liveness
@@ -480,6 +486,8 @@ touchpoints
 Trulia
 trustability
 tunneling
+typora
+Typora
 UID
 UIDs
 ulimit

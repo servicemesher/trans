@@ -1,8 +1,11 @@
 pull_request_rules:
   - name: Automatic merge on CI success and review
     conditions:
-      - status-success=ci/circleci
+      - "status-success=ci/circleci: markdown-spell-check"
+      - "status-success=ci/circleci: markdown-style-check"
       - "#approved-reviews-by>=1"
+      - label!=do-not-merge
+      - label!=WIP
     actions:
       merge:
         method: squash
