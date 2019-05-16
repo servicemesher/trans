@@ -2,6 +2,10 @@
 
 **ServiceMesher 社区中文资料库。**
 
+**注意**
+
+**非常感谢大家为我们提供文章线索和提交PR，trans 这个 repo 一开始是为了让社区用户提交翻译和原创文章的，所有文章合并到该仓库中之后，我们还要再搬运一遍到 [website](https://github.com/servicemesher/website) 中，因为制定的 Markdown 的 metadata 不同（文章顶部的 YAML 信息），所以每次搬运都要花费不少时间，况且写在 trans 这个 repo 中提交的文档最终都会发布到 website 中，而且跟 website 的 content/blog 结构是一致的，为了提高工作效率，为大家带来更高质量的文章，我们决定以后本仓库和 website 仓库会合并为一个，只保留 website 仓库。大家以后直接将文章线索和文档提交到 [website](https://github.com/servicemesher/website) 中。**
+
 ## 关于本仓库
 
 在本仓库中，您可以：
@@ -90,7 +94,7 @@ publishDate: 2019-02-28
 
 **关于图片**
 
-图片请随文章一同上传到 Github 中，与 `index.md` 文件位于同一目录。
+图片请随文章一同上传到 GitHub 中，与 `index.md` 文件位于同一目录。
 
 ## 推荐工具
 

@@ -3,7 +3,7 @@
 ## 博客
 
 1. Google Traffic Director详细介绍，http://www.servicemesher.com/blog/google-traffic-director-detail/ ，by 敖小剑
-2. Google混合云多云平台Anthos Config Mangement产品设计分析，http://www.servicemesher.com/blog/anthos-config-management-intro/ ，by 钟成
+2. Google混合云多云平台Anthos Config Management产品设计分析，http://www.servicemesher.com/blog/anthos-config-management-intro/ ，by 钟成
 3. CNCF正在筹建通用数据平面API工作组，以制定数据平面的标准API，http://www.servicemesher.com/blog/cncf-udpa-wg/ ，by 敖小剑
 4. 云原生生态周报（Cloud Native Weekly）第3期，http://www.servicemesher.com/blog/cloud-native-weekly-03/ ，by 云原生编辑部
 5. Envoy、服务网格和可观察性之企业最佳实践，http://www.servicemesher.com/blog/envoy-service-mesh-and-observability-best-practices-for-enterprises/ ，by Stela Udovicic，张新峰 译
