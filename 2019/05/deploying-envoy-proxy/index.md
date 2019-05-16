@@ -2,7 +2,7 @@
 original: https://monzo.com/blog/2019/04/03/deploying-envoy-proxy/
 author: "Suhail Patel"
 translator: "haiker2011"
-reviewer: ["SataQiu"]
+reviewer: [""]
 title: "部署Envoy代理来为Monzo提速"
 description: "本文介绍了使用Envoy来加速Monzo，对比了使用Linkerd和Envoy，通过试验证明Envoy拥有更小的延迟。"
 categories: "translation"
