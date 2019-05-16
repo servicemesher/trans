@@ -5,10 +5,10 @@ translator: "chengwhynot"
 reviewer: ["haiker2011","loverto"]
 title: "Kubernetes Service Mesh"
 summary: "文章介绍了为什么要用服务网格，以及简单的介绍了两个重要实现：Istio和Linkerd，鼓励大家上手实验。"
-categories: "译文"
+categories: "translation"
 tags: ["service mesh","Istio","Linkerd"]
 originalPublishDate: 2018-01-28
-publishDate: 2018-01-28
+publishDate: 2019-05-16
 ---
 
 ## 基于Kubernetes的服务网格
