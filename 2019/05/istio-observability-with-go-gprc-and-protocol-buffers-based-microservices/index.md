@@ -11,8 +11,6 @@ originalPublishDate: 2019-04-17
 publishDate: 2019-05-07
 ---
 
-# 基于Go、gRPC和Protobuf的微服务的Istio可观测性
-
 [编者按]
 
 > 本文演示了如何基于Go语言、gRPC和Protobuf技术构建一个微服务，并着重介绍了实现Istio可观测功能的三大支柱：日志、度量和追踪，以及与之对应的工具Logrus、Prometheus、Grafana、Jeager等。通过文章内容和示例代码，读者会对如何构建gRPC技术栈的微服务和使用Istio可视化工具观测服务的实现方案有一个全面的认识。
