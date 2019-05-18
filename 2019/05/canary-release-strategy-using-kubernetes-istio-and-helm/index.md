@@ -13,11 +13,9 @@ publishDate: 2019-05-09
 
 ![](./0071hauBly1g262ptg24tj30i20c1t9p.jpg)
 
-### 编者按
+# 编者按
 
 本文阐述了如何使用Helm和Istio实现手动金丝雀发布。
-
-
 
 我近期工作的项目目标是为微服务应用的金丝雀/分阶段发布制定一套流水线。而这些微服务被部署在Azure Kubernetes集群上（[AKS](https://azure.microsoft.com/en-us/services/kubernetes-service/)）。
 
@@ -33,7 +31,7 @@ publishDate: 2019-05-09
 
 高级要求是将应用程序服务通过金丝雀版本发布到生产环境中。
 
-##### 基本要求/限制：
+#### 基本要求/限制：
 
 - 每个Micro服务都应打包为单独的[**Helm**](https://helm.sh/)图表。
 
@@ -93,7 +91,7 @@ publishDate: 2019-05-09
 
 ### 关键内容
 
-##### Helm Values
+#### Helm Values
 
 让我们看下Helm valuse文件：
 
@@ -373,7 +371,7 @@ kubectl get svc istio-ingressgateway  -n istio-system
 23.XX.YY.ZZ product-page-svc.bookinfo-k8s-helm-istio-canary.svc.cluster.local
 ```
 
-新的服务能够通过该 URL 访问：http://product-page-svc.bookinfo-k8s-helm-istio-canary.svc.cluster.local/productpage?u=normal。
+新的服务能够通过该 URL 访问：`http://product-page-svc.bookinfo-k8s-helm-istio-canary.svc.cluster.local/productpage?u=normal`。
 
 在后续文章中，我们将介绍如何使用Azure Devops轻松创建多阶段流水线，手动判定以及回滚。
 
