@@ -27,17 +27,17 @@ publishDate: 2019-05-09
 
 ---
 
-### 关键要求
+## 关键要求
 
 高级要求是将应用程序服务通过金丝雀版本发布到生产环境中。
 
-#### 基本要求/限制：
+### 基本要求/限制：
 
 - 每个Micro服务都应打包为单独的[**Helm**](https://helm.sh/)图表。
 
 - 不同的团队管理不同的微服务，每个团队应该能够独立于其他微服务发布。
 
-- 服务网格[**Istio**](https://istio.io/)安装在kubernetes集群上
+- 服务网格[**Istio**](https://istio.io/)安装在Kubernetes集群上
 
 - 在项目的初始阶段，只有**Helm**和**Istio**可用于集群。在此阶段，不使用类似[flagger](https://github.com/weaveworks/flagger)这样的工具。
 
@@ -75,25 +75,25 @@ publishDate: 2019-05-09
 
 ---
 
-### 查看Github仓库
+### 查看GitHub仓库
 
-这个仓库包含上述微服务的样例代码，dockerfile，Helm chart以及每个阶段执行的Helm命令。同时，仓库还包含了由Helm Chart的helm template命令生成的kubernetes示例资源。
+这个仓库包含上述微服务的样例代码，Dockerfile，Helm chart以及每个阶段执行的Helm命令。同时，仓库还包含了由Helm Chart的helm template命令生成的Kubernetes示例资源。
 
-使用的示例服务是istio产品页面应用程序，应用程序代码和docker文件来自istio github仓库。
+使用的示例服务是Istio产品页面应用程序，应用程序代码和docker文件来自Istio github仓库。
 
 #### 仓库结构
 
 - 产品页面应用的源码
 - 应用容器的Dockerfile
-- Helm Chart文件夹包含kubernetes和istio资源
+- Helm Chart文件夹包含Kubernetes和Istio资源
 - helm-commands.sh，包含各阶段helm命令（rollback命令、helm template命令）
-- helm-template-output.yaml，包含由helm template命令生成的kubernetes示例资源
+- helm-template-output.yaml，包含由helm template命令生成的Kubernetes示例资源
 
 ### 关键内容
 
 #### Helm Values
 
-让我们看下Helm valuse文件：
+让我们看下Helm values文件：
 
 ```yaml
 service:
@@ -230,7 +230,7 @@ spec:
 
 Istio destination rule描述了生产版本和金丝雀版本两个版本子集（subset）。生产版本子集的流量将会被转发给canary标签值为false的pod。金丝雀版本子集的流量将会转发给canary标签值为true的pod。
 
-Destination rule中的host是service的FQDN，由service名称和kubernetes namespace构成。
+Destination rule中的host是service的FQDN，由service名称和Kubernetes namespace构成。
 
 ##### Istio Virtual Service
 
@@ -359,7 +359,7 @@ helm upgrade  --install --namespace bookinfo-k8s-helm-istio-canary --values ./pr
 
 ### 在任一阶段测试应用
 
-在这个案例中，product page需要可以从集群外部访问，因此我们需要istio网关。从服务器外部访问istio网关，需要获取它的外部IP。
+在这个案例中，product page需要可以从集群外部访问，因此我们需要Istio网关。从服务器外部访问Istio网关，需要获取它的外部IP。
 
 ```shell
 kubectl get svc istio-ingressgateway  -n istio-system
