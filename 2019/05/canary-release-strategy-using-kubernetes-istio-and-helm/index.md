@@ -79,7 +79,7 @@ publishDate: 2019-05-09
 
 这个仓库包含上述微服务的样例代码，Dockerfile，Helm chart以及每个阶段执行的Helm命令。同时，仓库还包含了由Helm Chart的helm template命令生成的Kubernetes示例资源。
 
-使用的示例服务是Istio产品页面应用程序，应用程序代码和docker文件来自Istio github仓库。
+使用的示例服务是Istio产品页面应用程序，应用程序代码和docker文件来自Istio GitHub仓库。
 
 #### 仓库结构
 
@@ -115,7 +115,7 @@ canaryDeployment:
     pullPolicy: IfNotPresent
 ```
 
-service部分包含了service名称。productionDeployment包含了副本数量、路由转发权重、容器镜像仓库名称、以及镜像tag。它跟canaryDeployment有一点类似。上面的值表示当处于稳定状态时，100%的流量被路由转发到现有生产版本Pod。而金丝雀版本则被设置为0副本，并且与生产版本使用相同镜像。当使用金丝雀发布时，金丝雀版本将被设置为使用新版本镜像。
+service部分包含了service名称。生产部署包含了副本数量、路由转发权重、容器镜像仓库名称、以及镜像tag。它跟金丝雀部署有一点类似。上面的值表示当处于稳定状态时，100%的流量被路由转发到现有生产版本Pod。而金丝雀版本则被设置为0副本，并且与生产版本使用相同镜像。当使用金丝雀发布时，金丝雀版本将被设置为使用新版本镜像。
 
 在这个案例中，容器镜像打tag策略是使用对应的build id，然后把它推送到镜像仓库。所以如果应用程序的新版本被触发构建，则下一个版本容器镜像tag为84（83+1）。
 
