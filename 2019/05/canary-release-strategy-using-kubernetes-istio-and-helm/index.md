@@ -11,7 +11,6 @@ originalPublishDate: 2019-04-11
 publishDate: 2019-05-09
 ---
 ![](./0071hauBly1g262ptg24tj30i20c1t9p.jpg)
-
 # 编者按
 
 本文阐述了如何使用Helm和Istio实现手动金丝雀发布。
