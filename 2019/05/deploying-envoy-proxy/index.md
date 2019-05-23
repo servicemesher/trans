@@ -2,13 +2,13 @@
 original: https://monzo.com/blog/2019/04/03/deploying-envoy-proxy/
 author: "Suhail Patel"
 translator: "haiker2011"
-reviewer: [""]
+reviewer: ["x19990416"]
 title: "部署Envoy代理来为Monzo提速"
 description: "本文介绍了使用Envoy来加速Monzo，对比了使用Linkerd和Envoy，通过试验证明Envoy拥有更小的延迟。"
 categories: "translation"
 tags: ["servicemesh", "Envoy"]
 originalPublishDate: 2018-04-03
-publishDate: 2019-05-13
+publishDate: 2019-05-23
 ---
 
 [编者按]
@@ -35,9 +35,9 @@ publishDate: 2019-05-13
 
 我们的微服务每秒通过HTTP执行数万次RPC调用。然而，要建立一个可靠的、可容错的分布式系统，需要具有服务发现、自动重试、错误预算、负载均衡和熔断功能。
 
-我们想建立一个支持所有编程语言的平台。虽然的大多数微服务都是用Go实现的，但是有些团队选择使用其他语言(例如，数据团队使用Python编写一些机器学习服务)。
+我们想建立一个支持所有编程语言的平台。虽然大多数微服务都是用Go实现的，但是有些团队选择使用其他语言(例如，数据团队使用Python编写一些机器学习服务)。
 
-在我们使用的每一种语言中实现这些复杂的特性，当想要使用新东西时，会面临非常高的门槛。此外，对RPC子系统的更改将意味着重新部署所有服务。
+在我们使用的每一种语言中实现这些复杂的特性，会对我们要使用的新事物设置很高的障碍。此外，对RPC子系统的更改将意味着重新部署所有服务。
 
 我们早期做出的一个关键决定是尽可能地使这个复杂的逻辑脱离流程：Linkerd对服务透明提供了许多特性。
 
@@ -65,7 +65,7 @@ Envoy并没有对Kubernetes的任何依赖。我们编写了自己的小型控�
 
 我们希望转换对服务是透明的。在我们的推出中，一个关键因素是如果需要回滚，该更改的可回溯性。
 
-我们设置了Envoy来接受和路由HTTP上的请求，就像Linkerd一样，并以Kubernetes daemonset方式将其推出。在几个月的时间里，我们在预发布环境中大量测试了这些更改。一旦到了投入生产的时候，我们就会在几天的时间里逐步推出它，以发现并解决任何在最后一刻出现的问题。
+我们设置了Envoy来接收和路由HTTP请求，就像Linkerd一样，并以Kubernetes daemonset方式将其推出。在几个月的时间里，我们在预发布环境中大量测试了这些更改。一旦到了投入生产的时候，我们就会在几天的时间里逐步推出它，以发现并解决任何在最后一刻出现的问题。
 
 ## 可观察性
 
@@ -85,11 +85,11 @@ Envoy并没有对Kubernetes的任何依赖。我们编写了自己的小型控�
 
 我们现在正在进行的一个关键项目是将服务移动到Envoy Proxy作为微服务容器的[sidecar](https://kubernetes.io/docs/concepts/workloads/pods/pod-overview/)。这意味着，每个服务将拥有自己的Envoy副本，而不是与主机上的Envoy通信(这是一个共享资源)。
 
-我们采用sidecar模型，设置Envoy来处理出入口问题。传入的请求(来自另一个服务或另一个Envoy的入侵)将通过本地Envoy传入，我们可以使用规则来验证流量是否合法。向外(出口)的交通将通过sidecar Envoy，sidecar Envoy负责像以前一样将流量路由到正确的地方。
+我们采用sidecar模型，设置Envoy来处理出入口问题。传入的请求(来自另一个服务或另一个Envoy的入口)将通过本地Envoy传入，我们可以使用规则来验证流量是否合法。向外(出口)的流量将通过sidecar Envoy，sidecar Envoy负责像以前一样将流量路由到正确的地方。
 
 ![img](./envoy-blog-5.png)
 
-转移到sidecar的一个关键优势是能够定义网络隔离规则。以前，我们无法锁定敏感的微服务，只在网络级别上接受来自某些Kubernetes Pod ip的流量，因为流量来自一个共享的Envoy。服务必须有自己的逻辑来验证请求是否合法，是否来自可信源。
+转移到sidecar的一个关键优势是能够定义网络隔离规则。以前，我们无法锁定敏感的微服务，因为流量来自一个共享的Envoy所以只能在网络级别上接收来自某些Kubernaetes Pod ip 的流量。服务必须有自己的逻辑来验证请求是否合法，是否来自可信源。
 
 通过在Pod名称空间中移动Envoy，我们能够向Pod添加[Calico网络策略规则](https://docs.projectcalico.org/v3.5/reference/calicoctl/resources/networkpolicy)，从而为每个微服务有效地建立网络防火墙。在这个例子中，我们可以说流量只能进入服务。来自其他微服务Pod的特定子集的帐户Pod。通过拒绝网络级别上未知的流量，这提供了一个额外的安全层。
 
