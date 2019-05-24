@@ -2,13 +2,13 @@
 original: https://programmaticponderings.com/2019/04/17/istio-observability-with-go-grpc-and-protocol-buffers-based-microservices/
 author: "Gary Stafford"
 translator: "malphi"
-reviewer: ["rootsongjc"]
+reviewer: ["haiker2011", "GuangmingLuo"]
 title: "基于Go、gRPC和Protobuf的微服务的Istio可观察性"
 description: "本文介绍了基于Go/gRPC的微服务实现，以及Istio下集成的几个可视化工具"
 categories: "translation"
 tags: ["istio","microservice"]
 originalPublishDate: 2019-04-17
-publishDate: 2019-05-07
+publishDate: 2019-05-24
 ---
 
 [编者按]
